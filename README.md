@@ -156,12 +156,12 @@ Bitstream이 올라가고 촬영 화면이 잘 나오는지 확인하세요.
 
 ### 1. 스위치와 버튼
 
-swtich 7 : on - 중앙의 해상도를 바꾸고, inference 실행  / off - 아무것도 안함
+swtich 7 : on - 중앙의 해상도를 바꾸고, inference 실행
 
-switch 6 : on - 촬영 멈추기 				                    / off - 아무것도 안함
+switch 6 : on - 촬영 멈추기 				
 
-switch 5 : on - 중앙 부분에 녹색 테두리 생성 		        / off - 아무것도 안함
+switch 5 : on - 중앙 부분에 녹색 테두리 생성 	
 
-switch 4 : on - inference 결과 출력                   / off - 아무것도 안함
+switch 4 : on - inference 결과 출력
 
 btnc : 하드웨어 리셋
