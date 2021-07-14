@@ -1,3 +1,24 @@
+//////////////////////////////////////////////////////////////////////////////////
+// Company: Embedded Computing Lab, Korea University
+// Engineer: Kwon Guyun
+//           1216kg@naver.com
+// 
+// Create Date: 2021/07/01 11:04:31
+// Design Name: i2c_sender
+// Module Name: i2c_sender
+// Project Name: project_ov7670
+// Target Devices: zedboard
+// Tool Versions: Vivado 2019.1
+// Description: send register setting signal using i2c(sccb)
+//               
+//
+// Dependencies: 
+// 
+// Revision 1.00 - first well-activate version
+// Additional Comments: reference design: http://www.nazim.ru/2512
+//                                        
+//                                      
+//////////////////////////////////////////////////////////////////////////////////
 module i2c_sender (
                     input   logic       clk,
                     output  logic       siod,

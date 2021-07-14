@@ -4,18 +4,18 @@
 //           1216kg@naver.com
 // 
 // Create Date: 2021/07/01 11:04:31
-// Design Name: ov7670_capture
-// Module Name: ov7670_capture
+// Design Name: ov7670_core
+// Module Name: ov7670_core
 // Project Name: project_ov7670
 // Target Devices: zedboard
 // Tool Versions: Vivado 2019.1
-// Description: get a image like data and process it before send it to vga
+// Description: get a image like data and process it before send it to vga and lenet
 //              
 // Dependencies: 
 // 
-// Revision:
-// Revision 0.01 - File Created
+// Revision 1.00 - first well-activate version
 // Additional Comments: reference design: http://www.nazim.ru/2512
+//                                        can change center image to lower resolution
 // 
 //////////////////////////////////////////////////////////////////////////////////
 module core 

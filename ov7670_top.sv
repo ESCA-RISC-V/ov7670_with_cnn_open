@@ -9,16 +9,18 @@
 // Project Name: project_ov7670
 // Target Devices: zedboard
 // Tool Versions: Vivado 2019.1
-// Description: top module of ov7670 to VGA
+// Description: top module of ov7670 to VGA and doing lenet inference
 // 
 // Dependencies: 
 // 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments: reference design: http://www.nazim.ru/2512
+// Revision 1.00 - first well-activate version
+// Additional Comments: reference design - ov7670 to vga: http://www.nazim.ru/2512
+//                      reference design - lenet: https://github.com/lulinchen/cnn_open
 //                      up button - reset ov7670
+//                      switch 4 - show cnn output
+//                      switch 5 - show resolution change image
 //                      switch 6 - pause image
-//                      switch 7 - change resolution
+//                      switch 7 - change resolution and start lenet inference
 //////////////////////////////////////////////////////////////////////////////////
 
 

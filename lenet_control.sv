@@ -1,3 +1,24 @@
+//////////////////////////////////////////////////////////////////////////////////
+// Company: Embedded Computing Lab, Korea University
+// Engineer: Kwon Guyun
+//           1216kg@naver.com
+// 
+// Create Date: 2021/07/01 11:04:31
+// Design Name: ov7670_controllers
+// Module Name: ov7670_controllers
+// Project Name: project_ov7670
+// Target Devices: zedboard
+// Tool Versions: Vivado 2019.1
+// Description: set registers of ov7670
+//               
+//
+// Dependencies: 
+// 
+// Revision 1.00 - first well-activate version
+// Additional Comments: get lenet_ready and data_ready signal and make one-clock lenet_go signal
+//                                        
+//                                      
+//////////////////////////////////////////////////////////////////////////////////
 module lenet_control (
 	input clk,    // Clock
 	input lenet_ready,

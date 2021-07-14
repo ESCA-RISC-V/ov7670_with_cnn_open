@@ -1,3 +1,24 @@
+//////////////////////////////////////////////////////////////////////////////////
+// Company: Embedded Computing Lab, Korea University
+// Engineer: Kwon Guyun
+//           1216kg@naver.com
+// 
+// Create Date: 2021/07/01 11:04:31
+// Design Name: vga
+// Module Name: vga
+// Project Name: project_ov7670
+// Target Devices: zedboard
+// Tool Versions: Vivado 2019.1
+// Description: get a image like data send it by using vga port
+//               
+//
+// Dependencies: 
+// 
+// Revision 1.00 - first well-activate version
+// Additional Comments: reference design: http://www.nazim.ru/2512
+//                                        can show lenet output at top left corner
+//                                      
+//////////////////////////////////////////////////////////////////////////////////
 module vga	
 			#(
             parameter widthlength = 8,

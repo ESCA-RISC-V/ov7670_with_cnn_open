@@ -1,3 +1,25 @@
+//////////////////////////////////////////////////////////////////////////////////
+// Company: Embedded Computing Lab, Korea University
+// Engineer: Kwon Guyun
+//           1216kg@naver.com
+// 
+// Create Date: 2021/07/01 11:04:31
+// Design Name: ov7670_controllers
+// Module Name: ov7670_controllers
+// Project Name: project_ov7670
+// Target Devices: zedboard
+// Tool Versions: Vivado 2019.1
+// Description: set registers of ov7670
+//               
+//
+// Dependencies: i2c_senders.sv
+//               ov7670_registers.sv
+// 
+// Revision 1.00 - first well-activate version
+// Additional Comments: reference design: http://www.nazim.ru/2512
+//                                        
+//                                      
+//////////////////////////////////////////////////////////////////////////////////
 module ov7670_controller	(
 							input	logic 		clk,
 							input  logic      rst_n,
