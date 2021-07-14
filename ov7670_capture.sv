@@ -56,7 +56,7 @@ module ov7670_capture 	(
                     we <= '0;
                     state <= '0;
                 end else begin
-                    dout <= ~din;
+                    dout <= din;
                     we <= ~we_go;
                     state <= '1;
                 end

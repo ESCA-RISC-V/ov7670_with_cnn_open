@@ -30,7 +30,7 @@ module ov7670_top	#(
                     parameter widthlength = 8,                                            // lenet_input data pixel accumulation size
                     parameter heightlength = 8,
                     parameter lenet_size = 28,
-                    parameter threshold = 'b1001110000,
+                    parameter threshold = 'b0110000000,
                     
                     localparam ACC_D_SIZE = $clog2(widthlength * heightlength) + 4 - 1           // each lenet pixel's data size
                     
@@ -187,7 +187,7 @@ module ov7670_top	#(
 		     .vsync_active(1'b0)
 		     )ivga(                                                     // loads data from fb and sends it to vga output
 			.clk25(clk25),
-			.frame_pixel(~frame_pixel),
+			.frame_pixel(frame_pixel),
 			.lenet_digit(lenet_digit),
 			.lenet_ready(lenet_ready),
 			.sw(SW[5]),
@@ -216,7 +216,7 @@ module ov7670_top	#(
 			.clka(clk25),
 			.wea(lenet_we),
 			.addra(addr_core_to_mem2),
-			.dina({8'b0, data_core_to_mem2}),
+			.dina({8'b0, ~data_core_to_mem2}),
 
 			.clkb(clk100),
 			.addrb(addr_lenet_to_mem2),

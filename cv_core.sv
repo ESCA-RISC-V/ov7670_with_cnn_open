@@ -27,7 +27,7 @@ module core
 			parameter heightlength = 8,
 			parameter lenet_size = 28,
 			parameter ACC_D_SIZE = 9,
-			parameter threshold = 'b1001110000,
+			parameter threshold = 'b0110001111,
             
             localparam THRESHOLD = threshold * widthlength * heightlength / (8 * 8) ,
 			
@@ -116,12 +116,12 @@ module core
                             lenet_we <= 1'b0;
                         end else if ((hcounter - left) % widthlength == (widthlength - 1) && (vcounter - upper) % heightlength == (heightlength - 1)) begin       
                             addr_mem2 <= 2 + 64 + ((hcounter - left) / widthlength) + 32 * ((vcounter - upper) / heightlength);
-                            if ((accu_temp[(hcounter-left)/widthlength] + din[7:4] + 2 ** (ACC_D_SIZE - 8)) > THRESHOLD) begin
+                            if ((accu_temp[(hcounter-left)/widthlength] + din[7:4] + 2 ** (ACC_D_SIZE - 8)) < THRESHOLD) begin
                                 lenet_dataout <= accu_temp[(hcounter-left)/widthlength] + din[7:4] + widthlength * heightlength / 32;                                       // add widthlength * heightlength / 32, because I want to do round, not round down
                                 out_temp[(hcounter-left)/widthlength] <= accu_temp[(hcounter-left)/widthlength] + din[7:4] + widthlength * heightlength / 2;                // add widthlength * heightlength / 2, because I want to do round, not round down
                             end else begin
-                                lenet_dataout <= '0;
-                                out_temp[(hcounter-left)/widthlength] <= '0;
+                                lenet_dataout <= '1;
+                                out_temp[(hcounter-left)/widthlength] <= '1;
                             end
                             lenet_we <= 1'b1;
                         end else begin
