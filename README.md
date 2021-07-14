@@ -48,6 +48,7 @@ Ip catalog에서 해당하는 ip를 찾아 아래의 설정을 참고하여 xili
 1. Clocking wizard 생성
 
 이 clocking wizard는 zedboard clock을 받아, 다양한 frequency의 clock으로 바꾸어줍니다.
+
 	- Component Name : clk_wiz_0(이 이름은 프로젝트 내에서 첫 번째로 clock wizard를 생성할 경우 기본으로 지정되는 이름입니다.)
 	- Input Clock : name - clk_in_wiz / frequency - 100MHz
 	- Output Clock1 : name - clk_100wiz / frequency - 100MHz
@@ -58,7 +59,8 @@ Ip catalog에서 해당하는 ip를 찾아 아래의 설정을 참고하여 xili
 2. 첫번째 block memeory generator 생성
 
 이 block memory는 ov7670_capture에서 보내 준 이미지를 저장하고 cv_core로 보내줍니다.
-	- Component Name : blk_mem_gen_0(this is default name if you create clocking wizard for first time)
+
+	- Component Name : blk_mem_gen_0(이 이름은 프로젝트 내에서 첫 번째로 block memory를 생성할 경우 기본으로 지정되는 이름입니다.)
 	- Memory Type : Simple Dual Port RAM
 	- Port A Options : Port A Width - 8 / Port A Depth - 307200 / Enable Port Type - Always Enabled
 	- Port B Options : Port B Width - 8 / Port B Depth - 307200 / Enable Port Type - Always Enabled
@@ -66,7 +68,8 @@ Ip catalog에서 해당하는 ip를 찾아 아래의 설정을 참고하여 xili
 3. 두번째 block memeory generator 생성
 
 이 block memory는 cv_core에서 보내 준 이미지를 저장하여 vga로 보내줍니다.
-  - Component Name : blk_mem_gen_1(this is default name if you create clocking wizard for second time)
+
+  	- Component Name : blk_mem_gen_1(이 이름은 프로젝트 내에서 두 번째로 block memory를 생성할 경우 기본으로 지정되는 이름입니다)
 	- Memory Type : Simple Dual Port RAM
 	- Port A Options : Port A Width - 4 / Port A Depth - 307200 / Enable Port Type - Always Enabled
 	- Port B Options : Port B Width - 4 / Port B Depth - 307200 / Enable Port Type - Always Enabled
@@ -74,7 +77,8 @@ Ip catalog에서 해당하는 ip를 찾아 아래의 설정을 참고하여 xili
 4. 세번째 block memeory generator 생성
 
 이 block memory는 cv_core에서 보내 준 lenet의 input으로 사용될 이미지를 저장하여 lenet으로 보내줍니다.
-	- Component Name : blk_mem_gen_2(this is default name if you create clocking wizard for third time)
+
+	- Component Name : blk_mem_gen_2(이 이름은 프로젝트 내에서  번째로 block memory를 생성할 경우 기본으로 지정되는 이름입니다)
 	- Memory Type : Simple Dual Port RAM
 	- Port A Options : Port A Width - 16 / Port A Depth - 1024 / Enable Port Type - Always Enabled
 	- Port B Options : Port B Width - 16 / Port A Depth - 1024 / Enable Port Type - Use ENB Pin
@@ -152,12 +156,12 @@ Bitstream이 올라가고 촬영 화면이 잘 나오는지 확인하세요.
 
 ### 1. 스위치와 버튼
 
-swtich 7 : on - 중앙의 해상도를 바꾸고, inference 실행  / off - 아무것도 안함
+swtich 7 : on - 중앙의 해상도를 바꾸고, inference 실행
 
-switch 6 : on - 촬영 멈추기 				                    / off - 아무것도 안함
+switch 6 : on - 촬영 멈추기 				
 
-switch 5 : on - 중앙 부분에 녹색 테두리 생성 		        / off - 아무것도 안함
+switch 5 : on - 중앙 부분에 녹색 테두리 생성 	
 
-switch 4 : on - inference 결과 출력                   / off - 아무것도 안함
+switch 4 : on - inference 결과 출력
 
 btnc : 하드웨어 리셋
