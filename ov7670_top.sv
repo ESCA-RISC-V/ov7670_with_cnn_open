@@ -87,7 +87,7 @@ module ov7670_top	#(
 	logic 			lenet_we;
 	// lenet memory access
 	logic [9:0]    addr_lenet_to_mem2;
-	logic [15:0]   data_lenet_from_mem2;
+	logic [7:0]   data_lenet_from_mem2;
 	logic          ren_lenet_to_mem2;
 	// lenet control and output
 	logic          lenet_rstn;
@@ -216,7 +216,7 @@ module ov7670_top	#(
 			.clka(clk25),
 			.wea(lenet_we),
 			.addra(addr_core_to_mem2),
-			.dina({8'b0, ~data_core_to_mem2}),
+			.dina(~data_core_to_mem2),
 
 			.clkb(clk100),
 			.addrb(addr_lenet_to_mem2),
@@ -230,7 +230,7 @@ module ov7670_top	#(
 		    .go(lenet_go),
 		    .cena_src(ren_lenet_to_mem2),
 		    .aa_src(addr_lenet_to_mem2),
-		    .qa_src(data_lenet_from_mem2),
+		    .qa_src({8'b0, data_lenet_from_mem2}),
 		    .digit(lenet_digit),
 		    .ready(lenet_ready)
 		);

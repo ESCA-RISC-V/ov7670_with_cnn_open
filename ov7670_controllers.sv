@@ -20,7 +20,9 @@
 //                                        
 //                                      
 //////////////////////////////////////////////////////////////////////////////////
-module ov7670_controller	(
+module ov7670_controller	#(
+							parameter camera_address = 8'h42
+							)(
 							input	logic 		clk,
 							input  logic      rst_n,
 							output logic		config_finished,
@@ -35,16 +37,13 @@ module ov7670_controller	(
 	logic 			finished;
 	logic 			taken;
 	logic 			send;
-	logic [7:0]    camera_address = 8'h42; // constant
 
-
-	always_comb begin : proc_config
-		config_finished = finished;
-		send = ~finished;
-		reset = 1'b1;
-		pwdn = 1'b0;
-		xclk = sys_clk;
-	end
+	assign config_finished = finished;
+ 	assign send = ~finished;
+    assign reset = 1'b1;
+	assign pwdn = 1'b0;
+	assign xclk = sys_clk;
+	
 
 	i2c_sender Inst_i2c_sender(
 		.clk(clk),
@@ -66,7 +65,7 @@ module ov7670_controller	(
 		.rst_n(rst_n)
 		);
 
-	always_ff @(posedge clk or negedge rst_n) begin : proc_
+	always_ff @(posedge clk or negedge rst_n) begin : proc_sys_clk
 	    if(~rst_n) begin
             sys_clk <= '0;
 	    end else begin

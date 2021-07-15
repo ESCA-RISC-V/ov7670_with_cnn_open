@@ -64,96 +64,242 @@ module core
     logic [ACC_D_SIZE:0]lenet_dataout;
 
     assign addr_mem0 = address_mem0;
-    //assign lenet_dout = lenet_dataout[ACC_D_SIZE:ACC_D_SIZE-7];
     assign lenet_dout = $unsigned(lenet_dataout * 16 / (widthlength * heightlength));
-	always_ff @(posedge clk25 or negedge rst_n) begin : proc_25
-        if (~rst_n) begin
+
+    always_ff @(posedge clk25 or negedge rst_n) begin : proc_counter
+        if(~rst_n) begin
             counter <= '0;
-            address_mem0 <= '0;
-            accu_temp <= '0;
-            out_temp <= '0;
-            hcounter <= '0;
-            vcounter <= '0;
-            lenet_doing <= lenet_signal;
-            lenet_dataout <= '0;
-            
-            addr_mem1 <= '0;
-            addr_mem2 <= '0;
-            dout <= '0;
-            we <= '0;
-            lenet_we <= '0;
-            data_ready <= '0;
         end else begin
-            if (counter >= c_frame + 1) begin                                                                                                        // originally >= c_frame, but because of sync, we need to calculate until address_mem1 is c_frame + 1, so I changed >= to >            
+            if (counter >= c_frame + 1) begin
                 counter <= '0;
+            end else begin
+                counter <= counter + 1;
+            end
+        end
+    end
+
+    always_ff @(posedge clk25 or negedge rst_n) begin : proc_address_mem0
+        if(~rst_n) begin
+            address_mem0 <= '0;
+        end else begin
+            if (counter >= c_frame + 1) begin
                 address_mem0 <= '0;
-                hcounter <= '0;
-                vcounter <= '0;
-                lenet_doing <= lenet_signal;
-                
-                addr_mem1 <= '0;
-                addr_mem2 <= '0;
-                we <= '0;
-                lenet_we <= '0;
-                data_ready <= '0;     
             end else begin
                 address_mem0 <= address_mem0 + 1;
-                counter <= counter + 1;
-                if(counter == 1) begin
-                    we <= '1; 
-                end
+            end
+        end
+    end
+
+    always_ff @(posedge clk25 or negedge rst_n) begin : proc_hcounter
+        if(~rst_n) begin
+            hcounter <= 0;
+        end else begin
+            if (counter >= c_frame + 1) begin
+                hcounter <= 0;
+            end else begin
                 if (hcounter == width - 1) begin
                     hcounter <= 0;
-                    vcounter <= vcounter + 1;
                 end else begin
                     hcounter <= hcounter + 1;
                 end
-                
-                if (lenet_doing == 1'b1) begin 
+            end
+        end
+    end
+
+    always_ff @(posedge clk25 or negedge rst_n) begin : proc_vcounter
+        if(~rst_n) begin
+            vcounter <= 0;
+        end else begin
+            if (counter >= c_frame + 1) begin
+                vcounter <= 0;
+            end else begin
+                if (hcounter == width - 1) begin
+                    vcounter <= vcounter + 1;
+                end
+            end
+        end
+    end
+
+    always_ff @(posedge clk25 or negedge rst_n) begin : proc_lenet_doing
+        if(~rst_n) begin
+            lenet_doing <= lenet_signal;
+        end else begin
+            if (counter >= c_frame + 1) begin
+                lenet_doing <= lenet_signal;
+            end
+        end
+    end
+
+    always_ff @(posedge clk25 or negedge rst_n) begin : proc_addr_mem1
+        if(~rst_n) begin
+            addr_mem1 <= 0;
+        end else begin
+            if (counter >= c_frame + 1) begin
+                addr_mem1 <= '0;
+            end else begin
+                if (lenet_doing == 1'b1) begin
                     if (hcounter >= left && vcounter >= upper && hcounter < right && vcounter < downer) begin
-                        if ((hcounter - left) % widthlength == 0 && (vcounter - upper) % heightlength ==0) begin
-                            accu_temp[(hcounter-left)/widthlength] <= din[7:4];                                                                         
-                            lenet_we <= 1'b0;
-                        end else if ((hcounter - left) % widthlength == (widthlength - 1) && (vcounter - upper) % heightlength == (heightlength - 1)) begin       
-                            addr_mem2 <= 2 + 64 + ((hcounter - left) / widthlength) + 32 * ((vcounter - upper) / heightlength);
-                            if ((accu_temp[(hcounter-left)/widthlength] + din[7:4] + 2 ** (ACC_D_SIZE - 8)) < THRESHOLD) begin
-                                lenet_dataout <= accu_temp[(hcounter-left)/widthlength] + din[7:4] + widthlength * heightlength / 32;                                       // add widthlength * heightlength / 32, because I want to do round, not round down
-                                out_temp[(hcounter-left)/widthlength] <= accu_temp[(hcounter-left)/widthlength] + din[7:4] + widthlength * heightlength / 2;                // add widthlength * heightlength / 2, because I want to do round, not round down
-                            end else begin
-                                lenet_dataout <= '1;
-                                out_temp[(hcounter-left)/widthlength] <= '1;
-                            end
-                            lenet_we <= 1'b1;
-                        end else begin
-                            accu_temp[(hcounter-left)/widthlength] <= accu_temp[(hcounter-left)/widthlength] + din[7:4];
-                            lenet_we <= 1'b0;                                 					
-                        end
-                               
-                        dout <= $unsigned(out_temp[(hcounter-left)/widthlength]) / (widthlength * heightlength);
-                        
                         if (vcounter - upper < heightlength) begin
                             addr_mem1 <= vcounter * width + hcounter + width * (lenet_size - 1) * heightlength - 1;
                         end else begin
                             addr_mem1 <= vcounter * width + hcounter - width * heightlength - 1;
                         end
                     end else begin
-                        dout <= din[7:4];
                         addr_mem1 <= vcounter * width + hcounter - 1;
+                    end
+                end else begin
+                    addr_mem1 <= vcounter * width + hcounter - 1;
+                end
+            end
+        end
+    end
+
+    always_ff @(posedge clk25 or negedge rst_n) begin : proc_addr_mem2
+        if(~rst_n) begin
+            addr_mem2 <= 0;
+        end else begin
+            if (counter >= c_frame + 1) begin
+                addr_mem2 <= 0;
+            end else begin
+                if (lenet_doing == 1'b1) begin 
+                    if (hcounter >= left && vcounter >= upper && hcounter < right && vcounter < downer) begin
+                        if ((hcounter - left) % widthlength == (widthlength - 1) && (vcounter - upper) % heightlength == (heightlength - 1)) begin       
+                            addr_mem2 <= 2 + 64 + ((hcounter - left) / widthlength) + 32 * ((vcounter - upper) / heightlength);
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    always_ff @(posedge clk25 or negedge rst_n) begin : proc_accu_temp
+        if(~rst_n) begin
+            accu_temp <= '0;
+        end else begin
+            if (counter < c_frame + 1) begin
+                if (lenet_doing == 1'b1) begin
+                    if ((hcounter - left) % widthlength == 0 && (vcounter - upper) % heightlength ==0) begin
+                        accu_temp[(hcounter-left)/widthlength] <= din[7:4];                                                                         
+                    end else begin
+                        accu_temp[(hcounter-left)/widthlength] <= accu_temp[(hcounter-left)/widthlength] + din[7:4];
+                    end
+                end
+            end
+        end
+    end
+
+    always_ff @(posedge clk25 or negedge rst_n) begin : proc_out_temp
+        if(~rst_n) begin
+            out_temp <= '0;
+        end else begin
+            if (counter < c_frame + 1) begin
+                if (lenet_doing == 1'b1) begin 
+                    if (hcounter >= left && vcounter >= upper && hcounter < right && vcounter < downer) begin
+                        if ((hcounter - left) % widthlength == (widthlength - 1) && (vcounter - upper) % heightlength == (heightlength - 1)) begin       
+                            if ((accu_temp[(hcounter-left)/widthlength] + din[7:4] + 2 ** (ACC_D_SIZE - 8)) < THRESHOLD) begin
+                                out_temp[(hcounter-left)/widthlength] <= accu_temp[(hcounter-left)/widthlength] + din[7:4] + widthlength * heightlength / 2;                // add widthlength * heightlength / 2, because I want to do round, not round down
+                            end else begin
+                                out_temp[(hcounter-left)/widthlength] <= '1;
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    always_ff @(posedge clk25 or negedge rst_n) begin : proc_lenet_dataout
+        if(~rst_n) begin
+            lenet_dataout <= 0;
+        end else begin
+            if (counter < c_frame + 1) begin
+                if (lenet_doing == 1'b1) begin 
+                    if (hcounter >= left && vcounter >= upper && hcounter < right && vcounter < downer) begin
+                        if ((hcounter - left) % widthlength == (widthlength - 1) && (vcounter - upper) % heightlength == (heightlength - 1)) begin       
+                            if ((accu_temp[(hcounter-left)/widthlength] + din[7:4] + 2 ** (ACC_D_SIZE - 8)) < THRESHOLD) begin
+                                lenet_dataout <= accu_temp[(hcounter-left)/widthlength] + din[7:4] + widthlength * heightlength / 32;                                       // add widthlength * heightlength / 32, because I want to do round, not round down
+                            end else begin
+                                lenet_dataout <= '1;
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    always_ff @(posedge clk25 or negedge rst_n) begin : proc_lenet_we
+        if(~rst_n) begin
+            lenet_we <= '0;
+        end else begin
+            if (counter >= c_frame + 1) begin
+                lenet_we <= '0;
+            end else begin
+                if (lenet_doing == 1'b1) begin 
+                    if (hcounter >= left && vcounter >= upper && hcounter < right && vcounter < downer) begin
+                        if ((hcounter - left) % widthlength == (widthlength - 1) && (vcounter - upper) % heightlength == (heightlength - 1)) begin       
+                            lenet_we <= 1'b1;
+                        end else begin
+                            lenet_we <= 1'b0;                                                   
+                        end
+                    end else begin
                         lenet_we <= 1'b0;
                     end
-        
                 end else begin
-                    dout <= din[7:4];
-                    addr_mem1 <= vcounter * width + hcounter - 1;
                     lenet_we <= 1'b0;
                 end
-                
-                if (lenet_doing == 1'b1 && hcounter == right-1 && vcounter == downer-1) begin
+            end
+        end
+    end
+
+    always_ff @(posedge clk25 or negedge rst_n) begin : proc_dout
+        if(~rst_n) begin
+            dout <= '0;
+        end else begin
+            if (counter >= c_frame + 1) begin
+                dout <= '0;
+            end else begin
+                if (lenet_doing == 1'b1) begin 
+                    if (hcounter >= left && vcounter >= upper && hcounter < right && vcounter < downer) begin
+                        dout <= $unsigned(out_temp[(hcounter-left)/widthlength]) / (widthlength * heightlength);
+                    end else begin
+                        dout <= din[7:4];
+                    end
+                end else begin
+                    dout <= din[7:4];
+                end
+            end
+        end
+    end
+
+    always_ff @(posedge clk25 or negedge rst_n) begin : proc_we
+        if(~rst_n) begin
+            we <= 0;
+        end else begin
+            if (counter >= c_frame + 1) begin
+                we <= '0;
+            end else begin
+                if (counter == 1'b1) begin
+                    we <= 1'b1;
+                end
+            end
+        end
+    end
+
+    always_ff @(posedge clk25 or negedge rst_n) begin : proc_data_ready
+        if(~rst_n) begin
+            data_ready <= 0;
+        end else begin
+            if (counter >= c_frame + 1) begin
+                data_ready <= '0;
+            end else begin
+                if (lenet_doing == 1'b1 && hcounter == right - 1 && vcounter == downer - 1) begin
                     data_ready <= 1'b1;
                 end else begin
                     data_ready <= 1'b0;
                 end
             end
-		end
-	end
+        end
+    end
+    
 endmodule // core

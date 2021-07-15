@@ -31,37 +31,64 @@ module ov7670_capture 	(
 	logic state;
     logic we_go;
     
-//	initial begin
-//		address = '0;
-//		state = '0;
-//	end
-
 	assign addr = address;
-	always_ff @(posedge pclk or negedge rst_n) begin : proc_1
-	   if(~rst_n) begin
-	       address <= '0;
-	       dout <= '0;
-	       we <= '0;
-	       state <= '0;
-	       we_go <= 1'b1;
-	   end else begin
-            if (vsync == 1'b1) begin
-                address <= '0;
-                we <= '0;
-                state <= '0;
-                we_go <= sw;
-            end else begin
-                if (state == 1'b1 && href == 1'b1) begin
-                    address <= address + 1;
-                    we <= '0;
-                    state <= '0;
-                end else begin
-                    dout <= din;
-                    we <= ~we_go;
-                    state <= '1;
-                end
-            end
-        end
+
+	always_ff @(posedge pclk or negedge rst_n) begin : proc_address
+		if(~rst_n) begin
+			address <= '0;
+		end else begin
+			if (vsync == 1'b1) begin
+				address <= '0;
+			end else if (state == 1'b1 && href == 1'b1) begin
+				address <= address + 1;
+			end
+		end
+	end
+
+	always_ff @(posedge pclk or negedge rst_n) begin : proc_dout
+		if(~rst_n) begin
+			dout <= '0;
+		end else begin
+			if (~(vsync == 1'b1) && ~(state == 1'b1 && href == 1'b1)) begin
+				dout <= din;
+			end
+		end
+	end
+
+	always_ff @(posedge pclk or negedge rst_n) begin : proc_we
+		if(~rst_n) begin
+			we <= '0;
+		end else begin
+			if (vsync == 1'b1 || (state == 1'b1 && href == 1'b1)) begin
+				we <= '0;
+			end else begin
+				we <= ~we_go;
+			end
+		end
+	end
+
+	always_ff @(posedge pclk or negedge rst_n) begin : proc_state
+		if(~rst_n) begin
+			state <= 1'b0;
+		end else begin
+			if (vsync == 1'b1) begin
+				state <= 1'b0;
+			end else if (state == 1'b1 && href == 1'b1) begin
+				state <= 1'b0;
+			end else begin
+				state <= 1'b1;
+			end
+		end
+	end
+
+	always_ff @(posedge pclk or negedge rst_n) begin : proc_we_go
+		if(~rst_n) begin
+			we_go <= sw;
+		end else begin
+			if (vsync == 1'b1) begin
+				we_go <= sw;
+			end
+		end
 	end
 
 endmodule : ov7670_capture
