@@ -20,11 +20,11 @@
 //                                      
 //////////////////////////////////////////////////////////////////////////////////
 module lenet_control (
-	input clk,    // Clock
-	input lenet_ready,
-	input data_ready,
-	input rst_n,
-	output logic lenet_go
+	input          clk,    // Clock
+	input          lenet_ready,
+	input          data_ready,
+	input          rst_n,
+	output logic   lenet_go
 );
 
 logic[1:0] data_ready_t;

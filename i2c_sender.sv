@@ -20,15 +20,15 @@
 //                                      
 //////////////////////////////////////////////////////////////////////////////////
 module i2c_sender (
-                    input   logic       clk,
+                    input               clk,
                     output  logic       siod,
                     output  logic       sioc,
                     output  logic       taken,
-                    input   logic       send,
-                    input   logic[7:0]  id,
-                    input   logic[7:0]  regi,
-                    input   logic[7:0]  value,
-                    input   logic       rst_n
+                    input               send,
+                    input         [7:0] id,
+                    input         [7:0] regi,
+                    input         [7:0] value,
+                    input               rst_n
                    );
 
     logic[7:0]  divider;

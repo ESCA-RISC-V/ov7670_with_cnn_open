@@ -35,29 +35,28 @@ module ov7670_top	#(
                     localparam ACC_D_SIZE = $clog2(widthlength * heightlength) + 4 - 1           // each lenet pixel's data size
                     
                     )(
-					input 	logic 		    clk100_zed,
-					output  logic 			OV7670_SIOC,                           // similar with I2C's SCL
-					inout 	logic 			OV7670_SIOD,                           // similar with I2C's SDA
-					output  logic 			OV7670_RESET,                          // ov7670 reset
-					output  logic 			OV7670_PWDN,                           // ov7670 power down
-					input 	logic 			OV7670_VSYNC,                          // ov7670 vertical sync
-					input 	logic 			OV7670_HREF,                           // ov7670 horizontal reference
-					input 	logic 			OV7670_PCLK,                           // ov7670 pclock
-					output  logic 			OV7670_XCLK,                           // ov7670 xclock
-					input 	logic [7:0] 	OV7670_D,                              // ov7670 data
+					input 	     		    clk100_zed,
+					output      			OV7670_SIOC,                           // similar with I2C's SCL
+					inout 	     			OV7670_SIOD,                           // similar with I2C's SDA
+					output      			OV7670_RESET,                          // ov7670 reset
+					output      			OV7670_PWDN,                           // ov7670 power down
+					input 	     			OV7670_VSYNC,                          // ov7670 vertical sync
+					input 	     			OV7670_HREF,                           // ov7670 horizontal reference
+					input 	     			OV7670_PCLK,                           // ov7670 pclock
+					output      			OV7670_XCLK,                           // ov7670 xclock
+					input 	       [7:0] 	OV7670_D,                              // ov7670 data
 		
-					output  logic [7:0]		LED,                                   // zedboard_LED
+					output         [7:0]    LED,                                   // zedboard_LED
 		
-					output  logic [3:0]		vga_red,                               // vga red output
-					output	logic [3:0]		vga_green,                             // vga green output
-					output	logic [3:0]		vga_blue,                              // vga blue output
-					output	logic 			vga_hsync,                             // vga horizontal sync
-					output	logic 			vga_vsync,                             // vga vertical sync
+					output         [3:0]	vga_red,                               // vga red output
+					output	       [3:0]	vga_green,                             // vga green output
+					output	       [3:0]	vga_blue,                              // vga blue output
+					output	                vga_hsync,                             // vga horizontal sync
+					output	                vga_vsync,                             // vga vertical sync
 
-					input 	logic			btn,                                    // zedboard BTNU (up button)
-					input   logic           PAD_RESET,
-					input 	logic [7:0]		SW                                    // zedboard SW (switch )
-
+					input 	                btn,                                    // zedboard BTNU (up button)
+					input                   PAD_RESET,
+					input 	       [7:0]	SW                                    // zedboard SW (switch )
 					);
         
 	// clocks
@@ -96,13 +95,9 @@ module ov7670_top	#(
 	logic[3:0]     lenet_digit;
 	logic          data_ready;
 	
-	logic [7:0] zerotemp;
-    
     wire rst_n = ~PAD_RESET;
 
-
     assign LED = {SW[7:4], 3'b000 , config_finished};             // show LED some informations
-    //assign zerotemp = 8'b00000000;
     
 		clk_wiz_0 clkwiz(                                             // clock generator
 			.clk_in_wiz(clk100_zed),

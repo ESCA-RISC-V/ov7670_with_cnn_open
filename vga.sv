@@ -19,7 +19,7 @@
 //                                        can show lenet output at top left corner
 //                                      
 //////////////////////////////////////////////////////////////////////////////////
-module vga	
+module vga	 
 			#(
             parameter widthlength = 8,
             parameter heightlength = 8,
@@ -44,27 +44,27 @@ module vga
             localparam downer = vRez / 2 + heightlength * lenet_size / 2
 			)
 			(
-			input	logic		clk25,
-			input 	logic[3:0]	frame_pixel,
-			input  logic[3:0] lenet_digit,
-			input  logic      lenet_ready,
-			input  logic      sw,
-			input  logic      sw2,
-			input  logic      rst_n,
-			output	logic[18:0]	frame_addr,
-			output logic[3:0]	vga_red,
-			output logic[3:0]	vga_green,
-			output	logic[3:0]	vga_blue,
-			output	logic 		vga_hsync,
-			output logic		vga_vsync
+			input                clk25,
+			input        [3:0]   frame_pixel,
+			input        [3:0]   lenet_digit,
+			input                lenet_ready,
+			input                sw,
+			input                sw2,
+			input                rst_n,
+			output       [18:0]	 frame_addr,
+			output logic [3:0]	 vga_red,
+			output logic [3:0]	 vga_green,
+			output logic [3:0]	 vga_blue,
+			output logic 		 vga_hsync,
+			output logic		 vga_vsync
 			);
 
 
 
-	logic [9:0]		hCounter;
-	logic [9:0]		vCounter;
-	logic [18:0]	address;
-	logic 			blank;
+	logic [9:0]	   hCounter;
+	logic [9:0]	   vCounter;
+	logic [18:0]   address;
+	logic 		   blank;
 	logic [3:0]    digit_t;
 	logic [11:0]   temp_rgb;
 	logic [6:0]    seven_seg;

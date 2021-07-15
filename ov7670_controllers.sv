@@ -23,14 +23,14 @@
 module ov7670_controller	#(
 							parameter camera_address = 8'h42
 							)(
-							input	logic 		clk,
-							input  logic      rst_n,
-							output logic		config_finished,
-							output logic		sioc,
-							inout 	logic 		siod,
-							output	logic 		reset,
-							output logic 		pwdn,
-							output logic 		xclk
+							input            clk,
+							input            rst_n,
+							output           config_finished,
+							output           sioc,
+							inout            siod,
+							output           reset,
+							output           pwdn,
+							output           xclk
 							);
 	logic 			sys_clk;
 	logic [15:0]	command;

@@ -20,10 +20,10 @@
 //                                      
 //////////////////////////////////////////////////////////////////////////////////
 module ov7670_registers	(
-						input	logic		clk,
-						input	logic		advance,
-						input   logic       rst_n,
-						output	logic[15:0]	command,
+						input			    clk,
+						input	            advance,
+						input               rst_n,
+						output       [15:0]	command,
 						output logic		finished	
 	);
 

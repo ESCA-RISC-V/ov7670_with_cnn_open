@@ -17,30 +17,28 @@
 // Additional Comments: sw can controll write image or not
 //////////////////////////////////////////////////////////////////////////////////
 module ov7670_capture 	(
-						input  logic		pclk,
-						input  logic 		vsync,
-						input  logic		href,
-						input  logic        sw,
-						input  logic[7:0]	din,
-						input  logic        rst_n,
+						input       		pclk,
+						input        		vsync,
+						input       		href,
+						input               sw,
+						input  [7:0]	din,
+						input               rst_n,
 						output logic[18:0]	addr,
 						output logic[7:0]	dout,
 						output logic 		we
 						);
-	logic[18:0] address;
 	logic state;
     logic we_go;
     
-	assign addr = address;
 
-	always_ff @(posedge pclk or negedge rst_n) begin : proc_address
+	always_ff @(posedge pclk or negedge rst_n) begin : proc_addr
 		if(~rst_n) begin
-			address <= '0;
+			addr <= '0;
 		end else begin
 			if (vsync == 1'b1) begin
-				address <= '0;
+				addr <= '0;
 			end else if (state == 1'b1 && href == 1'b1) begin
-				address <= address + 1;
+				addr <= addr + 1;
 			end
 		end
 	end
