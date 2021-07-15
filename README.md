@@ -172,3 +172,7 @@ switch 5 : on - 중앙 부분에 녹색 테두리 생성
 switch 4 : on - inference 결과 출력
 
 btnc : 하드웨어 리셋
+
+## 6. 실행화면
+
+![image](https://user-images.githubusercontent.com/80150832/125718052-615958d6-cacc-40e4-8805-bb721efb547c.png)
