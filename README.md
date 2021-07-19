@@ -32,9 +32,10 @@
 1. Vivado Design Suite를 켜서 'Quick start'에 있는 'Create Project'를 클릭하세요.
 2. 프로젝트 타입은 RTL Project로 설정하세요.
 3. Add source 페이지에서, 이 디렉토리와 하위  있는 시스템베릴로그 파일(.v, .sv 파일)을 모두 추가하세요.
-4. Add constraints 페이지에서는 zed_board.xdc 파일을 추가하세요.
-5. Default part에서는 왼쪽 상단의 'boards'를 클릭한 후에, zedboard를 검색하여 선택하세요.
-6. 마지막 페이지에서 finish를 누르면 새 비바도 프로젝트가 생성될 것입니다.
+4. .v 확장자 파일의 경우 Vivado 내의 properties 창에서 type을 verilog가 아닌 system verilog로 모두 바꾸어 주어야 합니다.
+5. Add constraints 페이지에서는 zed_board.xdc 파일을 추가하세요.
+6. Default part에서는 왼쪽 상단의 'boards'를 클릭한 후에, zedboard를 검색하여 선택하세요.
+7. 마지막 페이지에서 finish를 누르면 새 비바도 프로젝트가 생성될 것입니다.
 
 
 ### 2. Add Xilinx IPs for project.
