@@ -60,6 +60,7 @@ Ip catalog에서 해당하는 ip를 찾아 아래의 설정을 참고하여 xili
 	- Output Clock3 : name - clk_50wiz / frequency - 50MHz
 	- Output Clock4 : name - clk_25wiz / frequency - 25MHz
 	- Output Clock5 : name - clk_200wiz / frequency - 200Hz
+	- Reset Type : Active Low
 2. 첫번째 block memeory generator 생성
 
 이 block memory는 ov7670_capture에서 보내 준 이미지를 저장하고 cv_core로 보내줍니다.
