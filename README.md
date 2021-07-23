@@ -87,7 +87,8 @@ Ip catalog에서 해당하는 ip를 찾아 아래의 설정을 참고하여 xili
 	- Memory Type : Simple Dual Port RAM
 	- Port A Options : Port A Width - 16 / Port A Depth - 1024 / Enable Port Type - Always Enabled
 	- Port B Options : Port B Width - 16 / Port A Depth - 1024 / Enable Port Type - Use ENB Pin
-
+	- Other options : Fill Remaining Memory Locations / Remaining Memory Locations(Hex) - 0
+	
 ### 3. Bitstream 생성하기
 
 Bitstream을 생성하기에 앞서, synthesis와 implementation이 되어 있어야 합니다.
