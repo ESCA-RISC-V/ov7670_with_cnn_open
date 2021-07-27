@@ -44,7 +44,7 @@
 사용되는 ip는 아래와 같습니다.
 
 - clock wizard 한 개
-- block memory generator 세 개
+- block memory generator  개
 
 왼쪽의 'Flow Navigator'/'PROJECT MANAGER'/'IP Catalog'를 클릭하면 ip catalog를 열 수 있습니다. 
 Ip catalog에서 해당하는 ip를 찾아 아래의 설정을 참고하여 xilinx ip를 생성하십시오.
@@ -68,7 +68,7 @@ Ip catalog에서 해당하는 ip를 찾아 아래의 설정을 참고하여 xili
 	- Component Name : blk_mem_gen_0(이 이름은 프로젝트 내에서 첫 번째로 block memory를 생성할 경우 기본으로 지정되는 이름입니다.)
 	- Memory Type : Simple Dual Port RAM
 	- Port A Options : Port A Width - 8 / Port A Depth - 307200 / Enable Port Type - Always Enabled
-	- Port B Options : Port B Width - 8 / Port B Depth - 307200 / Enable Port Type - Always Enabled
+	- Port B Options : Port B Width - 8 / Port B Depth - 307200 / Enable Port Type - Always Enabled / Do not use Primitives Output Register
 
 3. 두번째 block memeory generator 생성
 
@@ -78,16 +78,6 @@ Ip catalog에서 해당하는 ip를 찾아 아래의 설정을 참고하여 xili
 	- Memory Type : Simple Dual Port RAM
 	- Port A Options : Port A Width - 4 / Port A Depth - 307200 / Enable Port Type - Always Enabled
 	- Port B Options : Port B Width - 4 / Port B Depth - 307200 / Enable Port Type - Always Enabled
-
-4. 세번째 block memeory generator 생성
-
-이 block memory는 cv_core에서 보내 준 lenet의 input으로 사용될 이미지를 저장하여 lenet으로 보내줍니다.
-
-	- Component Name : blk_mem_gen_2(이 이름은 프로젝트 내에서  번째로 block memory를 생성할 경우 기본으로 지정되는 이름입니다)
-	- Memory Type : Simple Dual Port RAM
-	- Port A Options : Port A Width - 16 / Port A Depth - 1024 / Enable Port Type - Always Enabled
-	- Port B Options : Port B Width - 16 / Port A Depth - 1024 / Enable Port Type - Use ENB Pin / Do not use Primitives Output Register
-	- Other options : Fill Remaining Memory Locations / Remaining Memory Locations(Hex) - 0
 	
 ### 3. Bitstream 생성하기
 
@@ -179,3 +169,7 @@ btnc : 하드웨어 리셋
 ## 6. 실행화면
 
 ![image](https://user-images.githubusercontent.com/80150832/125718052-615958d6-cacc-40e4-8805-bb721efb547c.png)
+
+### Main Branch와의 차이
+
+lenet의 첫 번째 convolution을 systolic array를 사용하도록 변경하였고, lenet input을 위한 메모리를 인터리브드 메모리로 변경하였습니다.
