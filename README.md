@@ -58,6 +58,7 @@ Ip catalog에서 해당하는 ip를 찾아 아래의 설정을 참고하여 xili
 	- Output Clock2 : name - clk_75wiz / frequency - 75MHz
 	- Output Clock3 : name - clk_50wiz / frequency - 50MHz
 	- Output Clock4 : name - clk_25wiz / frequency - 25MHz
+	- Output Clock5 : name - clk_200wiz / frequency - 200MHz
 
 2. 첫번째 block memeory generator 생성
 
@@ -66,7 +67,7 @@ Ip catalog에서 해당하는 ip를 찾아 아래의 설정을 참고하여 xili
 	- Component Name : blk_mem_gen_0(이 이름은 프로젝트 내에서 첫 번째로 block memory를 생성할 경우 기본으로 지정되는 이름입니다.)
 	- Memory Type : Simple Dual Port RAM
 	- Port A Options : Port A Width - 8 / Port A Depth - 307200 / Enable Port Type - Always Enabled
-	- Port B Options : Port B Width - 8 / Port B Depth - 307200 / Enable Port Type - Always Enabled
+	- Port B Options : Port B Width - 8 / Port B Depth - 307200 / Enable Port Type - Always Enabled	/ Not use primitive output register
 
 3. 두번째 block memeory generator 생성
 
@@ -84,7 +85,7 @@ Ip catalog에서 해당하는 ip를 찾아 아래의 설정을 참고하여 xili
 	- Component Name : blk_mem_gen_2(이 이름은 프로젝트 내에서  번째로 block memory를 생성할 경우 기본으로 지정되는 이름입니다)
 	- Memory Type : Simple Dual Port RAM
 	- Port A Options : Port A Width - 16 / Port A Depth - 1024 / Enable Port Type - Always Enabled
-	- Port B Options : Port B Width - 16 / Port A Depth - 1024 / Enable Port Type - Use ENB Pin
+	- Port B Options : Port B Width - 16 / Port A Depth - 1024 / Enable Port Type - Use ENB Pin / Not use primitive output register
 
 ### 3. Bitstream 생성하기
 
@@ -176,4 +177,3 @@ btnc : 하드웨어 리셋
 ## 6. 실행화면
 
 ![image](https://user-images.githubusercontent.com/80150832/125718052-615958d6-cacc-40e4-8805-bb721efb547c.png)
-
