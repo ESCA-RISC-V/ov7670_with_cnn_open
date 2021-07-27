@@ -32,10 +32,9 @@
 1. Vivado Design Suite를 켜서 'Quick start'에 있는 'Create Project'를 클릭하세요.
 2. 프로젝트 타입은 RTL Project로 설정하세요.
 3. Add source 페이지에서, 이 디렉토리와 하위  있는 시스템베릴로그 파일(.v, .sv 파일)을 모두 추가하세요.
-4. .v 확장자 파일의 경우 Vivado 내의 properties 창에서 type을 Verilog가 아닌 Systemverilog로 모두 바꾸어 주어야 합니다.
-5. Add constraints 페이지에서는 zed_board.xdc 파일을 추가하세요.
-6. Default part에서는 왼쪽 상단의 'boards'를 클릭한 후에, zedboard를 검색하여 선택하세요.
-7. 마지막 페이지에서 finish를 누르면 새 비바도 프로젝트가 생성될 것입니다.
+4. Add constraints 페이지에서는 zed_board.xdc 파일을 추가하세요.
+5. Default part에서는 왼쪽 상단의 'boards'를 클릭한 후에, zedboard를 검색하여 선택하세요.
+6. 마지막 페이지에서 finish를 누르면 새 비바도 프로젝트가 생성될 것입니다.
 
 
 ### 2. Add Xilinx IPs for project.
@@ -44,7 +43,7 @@
 사용되는 ip는 아래와 같습니다.
 
 - clock wizard 한 개
-- block memory generator  개
+- block memory generator 세 개
 
 왼쪽의 'Flow Navigator'/'PROJECT MANAGER'/'IP Catalog'를 클릭하면 ip catalog를 열 수 있습니다. 
 Ip catalog에서 해당하는 ip를 찾아 아래의 설정을 참고하여 xilinx ip를 생성하십시오.
@@ -59,8 +58,7 @@ Ip catalog에서 해당하는 ip를 찾아 아래의 설정을 참고하여 xili
 	- Output Clock2 : name - clk_75wiz / frequency - 75MHz
 	- Output Clock3 : name - clk_50wiz / frequency - 50MHz
 	- Output Clock4 : name - clk_25wiz / frequency - 25MHz
-	- Output Clock5 : name - clk_200wiz / frequency - 200Hz
-	- Reset Type : Active Low
+
 2. 첫번째 block memeory generator 생성
 
 이 block memory는 ov7670_capture에서 보내 준 이미지를 저장하고 cv_core로 보내줍니다.
@@ -68,7 +66,7 @@ Ip catalog에서 해당하는 ip를 찾아 아래의 설정을 참고하여 xili
 	- Component Name : blk_mem_gen_0(이 이름은 프로젝트 내에서 첫 번째로 block memory를 생성할 경우 기본으로 지정되는 이름입니다.)
 	- Memory Type : Simple Dual Port RAM
 	- Port A Options : Port A Width - 8 / Port A Depth - 307200 / Enable Port Type - Always Enabled
-	- Port B Options : Port B Width - 8 / Port B Depth - 307200 / Enable Port Type - Always Enabled / Do not use Primitives Output Register
+	- Port B Options : Port B Width - 8 / Port B Depth - 307200 / Enable Port Type - Always Enabled
 
 3. 두번째 block memeory generator 생성
 
@@ -78,7 +76,16 @@ Ip catalog에서 해당하는 ip를 찾아 아래의 설정을 참고하여 xili
 	- Memory Type : Simple Dual Port RAM
 	- Port A Options : Port A Width - 4 / Port A Depth - 307200 / Enable Port Type - Always Enabled
 	- Port B Options : Port B Width - 4 / Port B Depth - 307200 / Enable Port Type - Always Enabled
-	
+
+4. 세번째 block memeory generator 생성
+
+이 block memory는 cv_core에서 보내 준 lenet의 input으로 사용될 이미지를 저장하여 lenet으로 보내줍니다.
+
+	- Component Name : blk_mem_gen_2(이 이름은 프로젝트 내에서  번째로 block memory를 생성할 경우 기본으로 지정되는 이름입니다)
+	- Memory Type : Simple Dual Port RAM
+	- Port A Options : Port A Width - 16 / Port A Depth - 1024 / Enable Port Type - Always Enabled
+	- Port B Options : Port B Width - 16 / Port A Depth - 1024 / Enable Port Type - Use ENB Pin
+
 ### 3. Bitstream 생성하기
 
 Bitstream을 생성하기에 앞서, synthesis와 implementation이 되어 있어야 합니다.
@@ -170,6 +177,3 @@ btnc : 하드웨어 리셋
 
 ![image](https://user-images.githubusercontent.com/80150832/125718052-615958d6-cacc-40e4-8805-bb721efb547c.png)
 
-### Main Branch와의 차이
-
-lenet의 첫 번째 convolution을 systolic array를 사용하도록 변경하였고, lenet input을 위한 메모리를 인터리브드 메모리로 변경하였습니다.
