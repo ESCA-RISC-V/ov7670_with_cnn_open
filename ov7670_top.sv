@@ -67,7 +67,7 @@ module ov7670_top	#(
 	logic           clk200;
 	// capture to mem_blk_0
 	logic [18:0]	capture_addr;
-	logic [7:0] 	capture_data;
+	logic [3:0] 	capture_data;
 	logic [0:0]		capture_we;
 	// mem_blk_0 -> core -> mem_blk_1
 	logic [7:0]		data_to_core;
@@ -86,7 +86,7 @@ module ov7670_top	#(
 	logic 			lenet_we;
 	// lenet memory access
 	logic [9:0]    addr_lenet_to_mem2;
-	logic [7:0]   data_lenet_from_mem2;
+	logic [5*5*1*16-1:0]   data_lenet_from_mem2;
 	logic          ren_lenet_to_mem2;
 	// lenet control and output
 	logic          lenet_rstn;
@@ -207,16 +207,24 @@ module ov7670_top	#(
 			.xclk(OV7670_XCLK)
 			);
 			
-		blk_mem_gen_2 fb3(                                            // stores processed data, for now, stores datas for Lenet input
+		interleaved_ram #(
+		    .I_WIDTH(5),
+		    .T_WIDTH(32),
+		    .D_SIZE(16)
+		    )fb3(                                            // stores processed data, for now, stores datas for Lenet input
 			.clka(clk25),
-			.wea(lenet_we),
-			.addra(addr_core_to_mem2),
-			.dina(~data_core_to_mem2),
+			.we(lenet_we),
+			.addra_x(addr_core_to_mem2[4:0]),
+			.addra_y(addr_core_to_mem2[9:5]),
+			.dina({8'b0, ~data_core_to_mem2}),
 
 			.clkb(clk100),
-			.addrb(addr_lenet_to_mem2),
+			.addrb_x(addr_lenet_to_mem2[4:0]),
+			.addrb_y(addr_lenet_to_mem2[9:5]),
 			.doutb(data_lenet_from_mem2),
-			.enb(~ren_lenet_to_mem2)
+			.re(~ren_lenet_to_mem2),
+			
+			.rst_n(rst_n)
 			);
 			
 		lenet ilenet(
@@ -225,7 +233,7 @@ module ov7670_top	#(
 		    .go(lenet_go),
 		    .cena_src(ren_lenet_to_mem2),
 		    .aa_src(addr_lenet_to_mem2),
-		    .qa_src({8'b0, data_lenet_from_mem2}),
+		    .qa_src(data_lenet_from_mem2),
 		    .digit(lenet_digit),
 		    .ready(lenet_ready)
 		);

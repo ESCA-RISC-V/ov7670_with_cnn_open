@@ -11,7 +11,7 @@ module lenet(
 	input					go,
 	output					cena_src,
 	output		[9:0]		aa_src,
-	input		[`WD:0]		qa_src,
+	input		[4:0][4:0][0:0][15:0]		qa_src,
 	output reg	[3:0]		digit,
 	output 					ready
 	);
@@ -37,7 +37,7 @@ module lenet(
 		.qa				(qa_bias_conv1)
 		);
 	wire	conv1_go = go;
-	iterator  #(
+	/*iterator  #(
 		.OUTPUT_BATCH	(`OUTPUT_BATCH_CONV1),
 		.KERNEL_SIZEX	(`KERNEL_SIZEX_CONV1),
 		.KERNEL_SIZEY	(`KERNEL_SIZEY_CONV1),
@@ -91,13 +91,87 @@ module lenet(
 		.q              (q_conv1),
 		.q_en           (q_conv1_en)
 		);
+	*/
 	
+	wire conv1_ready;
 	reg		[9:0]	aa_conv1_buf;
 	reg				cena_conv1_buf;
 	reg		[9:0]	ab_conv1_buf;
 	reg		[95:0]	db_conv1_buf;
 	reg				cenb_conv1_buf;
 	wire	[95:0]	qa_conv1_buf;
+	
+	wire bias_ready, filter_ready;
+    wire [15:0] filter_wire;
+    wire [4:0] aa_f;
+    wire [2:0] aa_oc;
+    wire [0:0] aa_ic;
+    wire [24:0][5:0] filter_we;
+    wire [3:0] aa_bias;
+    wire [5:0] bias_we;
+    wire [23:0] bias_wire;
+	
+    filter_rom i_rom(
+        .clk(clk),
+        .rst_n(rstn),
+        .aa_f(aa_f),
+        .aa_ic(aa_ic),
+        .aa_oc(aa_oc),
+        .cena(filter_ready),
+        .qa(filter_wire)
+        );
+        
+    bias_rom b_rom(
+        .clk(clk),
+        .rstn(rstn),
+        .aa(aa_bias),
+        .cena(bias_ready),
+        .qa(bias_wire)
+        );
+
+	myiterator #(
+	   .F_SIZE(5),
+	   .STEP(1),
+	   .I_SIZE(32),
+	   .CHANNEL(1),
+	   .FILTERS(6)
+	   )iterator_conv1(
+        .clk(clk),
+        .clk_en(1'b1),
+        .rst_n(rstn),
+        .going(go),
+        .aa_bias(aa_bias),
+        .aa_data_x(aa_src[4:0]),
+        .aa_data_y(aa_src[9:5]),
+        .aa_filter_f(aa_f),
+        .aa_filter_ic(aa_ic),
+        .aa_filter_oc(aa_oc),
+        .filter_we(filter_we),
+        .bias_we(bias_we),
+        .filter_ready(filter_ready),
+        .bias_ready(bias_ready),
+        .cena(cena_src),
+        .cenb(cenb_conv1_buf),
+        .ready(conv1_ready));
+	
+    systolic_array #(
+        .CHANNEL(1),
+        .FILTERS(6),
+        .I_D_SIZE(16),
+        .F_D_SIZE(16),
+        .F_WIDTH(5),
+        .O_D_SIZE(16)
+        )isa(
+        .clk(clk),
+        .clk_en(1'b1),
+        .rst_n(rstn),
+        .filter_i(filter_wire),
+        .filter_we(filter_we),
+        .vectorized_input(qa_src),
+        .bias_i(bias_wire),
+        .bias_we(bias_we),
+        .vectorized_output(db_conv1_buf)
+        );
 	
 	rfdp1024x96 conv1_buf(
 		.CLKA   (clk),
@@ -110,14 +184,14 @@ module lenet(
 		.DB     (db_conv1_buf)
 		);
 	
-	always @(`CLK_RST_EDGE)
+	/*always @(`CLK_RST_EDGE)
 		if (`ZST)	db_conv1_buf <= 0;
 		else 		db_conv1_buf <= q_conv1;
 	
 	always @(`CLK_RST_EDGE)
 		if (`RST)	cenb_conv1_buf <= 1;
 		else 		cenb_conv1_buf <= ~q_conv1_en;
-	always @(`CLK_RST_EDGE)
+	*/always @(`CLK_RST_EDGE)
 		if (`RST)					ab_conv1_buf <= 0;
 		else if (conv1_go)			ab_conv1_buf <= 0;
 		else if (!cenb_conv1_buf)	ab_conv1_buf <= ab_conv1_buf + 1;

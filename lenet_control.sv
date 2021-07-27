@@ -30,7 +30,7 @@ module lenet_control (
 logic[1:0] data_ready_t;
 logic[1:0] lenet_ready_t;
 
-always_ff @(posedge clk or negedge rst_n) begin : proc_data_ready_t
+always_ff @(posedge clk or negedge rst_n) begin : proc_data_ready_t                 // preprocessed data is ready
    if(~rst_n) begin
       data_ready_t <= 2'b00;
    end else begin
@@ -44,7 +44,7 @@ always_ff @(posedge clk or negedge rst_n) begin : proc_data_ready_t
    end
 end
 
-always_ff @(posedge clk or negedge rst_n) begin : proc_lenet_ready_t
+always_ff @(posedge clk or negedge rst_n) begin : proc_lenet_ready_t                // lenet ready
    if(~rst_n) begin
       lenet_ready_t <= 2'b01;
    end else begin
@@ -58,7 +58,7 @@ always_ff @(posedge clk or negedge rst_n) begin : proc_lenet_ready_t
    end
 end
 
-always_ff @(posedge clk or negedge rst_n) begin : proc_lenet_go
+always_ff @(posedge clk or negedge rst_n) begin : proc_lenet_go                     // start lenet inference
    if(~rst_n) begin
       lenet_go <= 1'b0;
    end else begin

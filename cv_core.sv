@@ -39,7 +39,7 @@ module core
             )
             (
 			input                         clk25,
-			input        [7:0]	          din,
+			input        [3:0]	          din,
 			input                         lenet_signal,
 			input                         rst_n,
 			
@@ -183,9 +183,9 @@ module core
             if (counter < c_frame + 1) begin
                 if (lenet_doing == 1'b1) begin
                     if ((hcounter - left) % widthlength == 0 && (vcounter - upper) % heightlength ==0) begin
-                        accu_temp[(hcounter-left)/widthlength] <= din[7:4];                                                                         
+                        accu_temp[(hcounter-left)/widthlength] <= din;                                                                         
                     end else begin
-                        accu_temp[(hcounter-left)/widthlength] <= accu_temp[(hcounter-left)/widthlength] + din[7:4];
+                        accu_temp[(hcounter-left)/widthlength] <= accu_temp[(hcounter-left)/widthlength] + din;
                     end
                 end
             end
@@ -200,8 +200,8 @@ module core
                 if (lenet_doing == 1'b1) begin 
                     if (hcounter >= left && vcounter >= upper && hcounter < right && vcounter < downer) begin
                         if ((hcounter - left) % widthlength == (widthlength - 1) && (vcounter - upper) % heightlength == (heightlength - 1)) begin       
-                            if ((accu_temp[(hcounter-left)/widthlength] + din[7:4] + 2 ** (ACC_D_SIZE - 8)) < THRESHOLD) begin
-                                out_temp[(hcounter-left)/widthlength] <= accu_temp[(hcounter-left)/widthlength] + din[7:4] + widthlength * heightlength / 2;                // add widthlength * heightlength / 2, because I want to do round, not round down
+                            if ((accu_temp[(hcounter-left)/widthlength] + din + 2 ** (ACC_D_SIZE - 8)) < THRESHOLD) begin
+                                out_temp[(hcounter-left)/widthlength] <= accu_temp[(hcounter-left)/widthlength] + din + widthlength * heightlength / 2;                // add widthlength * heightlength / 2, because I want to do round, not round down
                             end else begin
                                 out_temp[(hcounter-left)/widthlength] <= '1;
                             end
@@ -220,8 +220,8 @@ module core
                 if (lenet_doing == 1'b1) begin 
                     if (hcounter >= left && vcounter >= upper && hcounter < right && vcounter < downer) begin
                         if ((hcounter - left) % widthlength == (widthlength - 1) && (vcounter - upper) % heightlength == (heightlength - 1)) begin       
-                            if ((accu_temp[(hcounter-left)/widthlength] + din[7:4] + 2 ** (ACC_D_SIZE - 8)) < THRESHOLD) begin
-                                lenet_dataout <= accu_temp[(hcounter-left)/widthlength] + din[7:4] + widthlength * heightlength / 32;                                       // add widthlength * heightlength / 32, because I want to do round, not round down
+                            if ((accu_temp[(hcounter-left)/widthlength] + din + 2 ** (ACC_D_SIZE - 8)) < THRESHOLD) begin
+                                lenet_dataout <= accu_temp[(hcounter-left)/widthlength] + din + widthlength * heightlength / 32;                                       // add widthlength * heightlength / 32, because I want to do round, not round down
                             end else begin
                                 lenet_dataout <= '1;
                             end
@@ -267,10 +267,10 @@ module core
                     if (hcounter >= left && vcounter >= upper && hcounter < right && vcounter < downer) begin
                         dout <= $unsigned(out_temp[(hcounter-left)/widthlength]) / (widthlength * heightlength);
                     end else begin
-                        dout <= din[7:4];
+                        dout <= din;
                     end
                 end else begin
-                    dout <= din[7:4];
+                    dout <= din;
                 end
             end
         end

@@ -24,7 +24,7 @@ module ov7670_capture 	(
 						input  [7:0]	din,
 						input               rst_n,
 						output logic[18:0]	addr,
-						output logic[7:0]	dout,
+						output logic[3:0]	dout,
 						output logic 		we
 						);
 	logic state;
@@ -48,7 +48,7 @@ module ov7670_capture 	(
 			dout <= '0;
 		end else begin
 			if (~(vsync == 1'b1) && ~(state == 1'b1 && href == 1'b1)) begin
-				dout <= din;
+				dout <= din[7:4];
 			end
 		end
 	end

@@ -71,7 +71,7 @@ module vga
 	
 	assign frame_addr = address;
 
-    always_ff @(posedge lenet_ready or negedge rst_n) begin 
+    always_ff @(posedge lenet_ready or negedge rst_n) begin : proc_digit_t              // store lenet_digit;
         if (~rst_n) begin
             digit_t <= 4'b1111;
         end else begin
@@ -81,7 +81,7 @@ module vga
 	    end
     end
 
-	always_comb begin : proc_seven_seg
+	always_comb begin : proc_seven_seg                                                 // setting seven segment by digit
 		case (digit_t)
 			4'b0000: 	seven_seg = 7'b1111110;    // 0
 			4'b0001: 	seven_seg = 7'b0110000;    // 1
@@ -97,7 +97,7 @@ module vga
 		endcase
 	end
 
-	always_comb begin : proc_temp_rgb
+	always_comb begin : proc_temp_rgb                                                  // setting seven segment's color by digit
 		case (digit_t)
 			4'b0000: 	temp_rgb = 12'hF00;
 			4'b0001: 	temp_rgb = 12'hF80;
@@ -113,7 +113,7 @@ module vga
         endcase
 	end
 
-	always_ff @(posedge clk25 or negedge rst_n) begin : proc_hCounter
+	always_ff @(posedge clk25 or negedge rst_n) begin : proc_hCounter                  // horizontal counter of vga output
 		if(~rst_n) begin
 			hCounter <= '0;
 		end else begin
@@ -125,7 +125,7 @@ module vga
 		end
 	end
 
-	always_ff @(posedge clk25 or negedge rst_n) begin : proc_vCounter
+	always_ff @(posedge clk25 or negedge rst_n) begin : proc_vCounter                  // vertical counter of vga output
 		if(~rst_n) begin
 			vCounter <= '0;
 		end else begin
@@ -139,7 +139,7 @@ module vga
 		end
 	end
 
-	always_ff @(posedge clk25 or negedge rst_n) begin : proc_address
+	always_ff @(posedge clk25 or negedge rst_n) begin : proc_address                   // address of vga output pixel
 		if(~rst_n) begin
 			address <= 0;
 		end else begin
@@ -153,7 +153,7 @@ module vga
 		end
 	end
 
-	always_ff @(posedge clk25 or negedge rst_n) begin : proc_blank
+	always_ff @(posedge clk25 or negedge rst_n) begin : proc_blank                     // whether send pixel value or not
 		if(~rst_n) begin
 			blank <= 1'b1;
 		end else begin
@@ -169,7 +169,7 @@ module vga
 		end
 	end
 
-	always_ff @(posedge clk25 or negedge rst_n) begin : proc_vga_rgb
+	always_ff @(posedge clk25 or negedge rst_n) begin : proc_vga_rgb                   // vga_rgb value
 		if(~rst_n) begin
 			{vga_red, vga_green, vga_blue} <= '0;
 		end else begin
@@ -221,7 +221,7 @@ module vga
 		end
 	end
 
-	always_ff @(posedge clk25 or negedge rst_n) begin : proc_vga_hsync
+	always_ff @(posedge clk25 or negedge rst_n) begin : proc_vga_hsync                 // vga horizontal sync
 		if(~rst_n) begin
 			vga_hsync <= ~hsync_active;
 		end else begin
@@ -233,7 +233,7 @@ module vga
 		end
 	end
 
-	always_ff @(posedge clk25 or negedge rst_n) begin : proc_vga_vsync
+	always_ff @(posedge clk25 or negedge rst_n) begin : proc_vga_vsync                 // vga vertical sync
 		if(~rst_n) begin
 			vga_vsync <= ~vsync_active;
 		end else begin
