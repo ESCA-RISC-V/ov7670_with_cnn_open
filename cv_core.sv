@@ -144,15 +144,15 @@ module core
                 if (lenet_doing == 1'b1) begin
                     if (hcounter >= left && vcounter >= upper && hcounter < right && vcounter < downer) begin
                         if (vcounter - upper < heightlength) begin
-                            address_mem1 <= vcounter * width + hcounter + width * (lenet_size - 1) * heightlength - 1;
+                            address_mem1 <= vcounter * width + hcounter + width * (lenet_size - 1) * heightlength;
                         end else begin
-                            address_mem1 <= vcounter * width + hcounter - width * heightlength - 1;
+                            address_mem1 <= vcounter * width + hcounter - width * heightlength;
                         end
                     end else begin
-                        address_mem1 <= vcounter * width + hcounter - 1;
+                        address_mem1 <= vcounter * width + hcounter;
                     end
                 end else begin
-                    address_mem1 <= vcounter * width + hcounter - 1;
+                    address_mem1 <= vcounter * width + hcounter;
                 end
             end
         end

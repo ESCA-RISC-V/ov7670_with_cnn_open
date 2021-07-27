@@ -38,8 +38,8 @@ module vga
 			parameter hsync_active = 1'b0,
 			parameter vsync_active = 1'b0,
 			
-            localparam left = hRez / 2 - widthlength * lenet_size / 2 - 1,
-            localparam right = hRez / 2 + widthlength * lenet_size / 2,
+            localparam left = hRez / 2 - widthlength * lenet_size / 2 - 1 + 1,
+            localparam right = hRez / 2 + widthlength * lenet_size / 2 + 1,
             localparam upper = vRez / 2 - heightlength * lenet_size / 2 - 1,
             localparam downer = vRez / 2 + heightlength * lenet_size / 2
 			)
