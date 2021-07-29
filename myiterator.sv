@@ -30,8 +30,8 @@ module myiterator #(
     localparam D_I_SIZE = $clog2(I_SIZE*I_SIZE+1),
     localparam D_IC_SIZE = $clog2(CHANNEL+1),
     localparam D_OC_SIZE = $clog2(FILTERS+1),
-    localparam START_DELAY = 2 + F_SIZE * F_SIZE * CHANNEL + FILTERS + 1 - 1,
-    localparam TOTAL_DELAY = 2 + ((I_SIZE-F_SIZE)/STEP + 1) ** 2 + F_SIZE * F_SIZE * CHANNEL + FILTERS + 1 - 1,
+    localparam START_DELAY = 3 + F_SIZE * F_SIZE * CHANNEL + FILTERS + 1 - 1,
+    localparam TOTAL_DELAY = 3 + ((I_SIZE-F_SIZE)/STEP + 1) ** 2 + F_SIZE * F_SIZE * CHANNEL + FILTERS + 1 - 1,
     localparam DC_SIZE = $clog2(TOTAL_DELAY+1),
     localparam FC_SIZE = $clog2(F_SIZE * F_SIZE * CHANNEL * FILTERS + 1)
     )(

@@ -21,8 +21,8 @@
 
 
 module systolic_array #(
-    parameter CHANNEL = 2,
-    parameter FILTERS = 2,
+    parameter CHANNEL = 1,
+    parameter FILTERS = 4,                                  // output channel
     parameter I_D_SIZE = 4,
     parameter F_D_SIZE = 4,
     parameter F_WIDTH = 2,

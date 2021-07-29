@@ -20,7 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 module interleaved_ram #(
-    parameter I_WIDTH = 5,
+    parameter I_WIDTH = 2,
     parameter T_WIDTH = 32,
     parameter D_SIZE = 16,
     localparam B_WIDTH = (T_WIDTH + I_WIDTH - 1) / I_WIDTH,
@@ -40,16 +40,20 @@ module interleaved_ram #(
     input re
 );
     genvar i, j;
-    wire [I_WIDTH-1:0][I_WIDTH-1:0][D_SIZE-1:0] doutb_temp;
+    wire [I_WIDTH-1:0][I_WIDTH-1:0][D_SIZE-1:0] doutb_wire;
     logic [T_LOG-1:0] addrb_y_t;
     logic [T_LOG-1:0] addrb_x_t;
+    logic [T_LOG-1:0] addrb_x_s;
+    logic [I_WIDTH-1:0][I_WIDTH-1:0][D_SIZE-1:0] doutb_temp;
 
     always_ff @(posedge clkb or negedge rst_n) begin : proc_addrb_y_t
         if(~rst_n) begin
             addrb_x_t <= 0;
+            addrb_x_s <= 0;  
             addrb_y_t <= 0;
         end else begin
             addrb_x_t <= addrb_x;
+            addrb_x_s <= addrb_x_t;
             addrb_y_t <= addrb_y;
         end
     end
@@ -68,7 +72,7 @@ module interleaved_ram #(
                     .WIDTH(D_SIZE),
                     .DEPTH(B_WIDTH*B_WIDTH)
                     )irfdp(
-                    .QA(doutb_temp[i][j]),
+                    .QA(doutb_wire[j][i]),
                     .AA(addrb),
                     .CLKA(clkb),
                     .CENA(~re),
@@ -81,12 +85,22 @@ module interleaved_ram #(
         end
         
         for (i = 0; i < I_WIDTH; i++) begin
+            always_ff @(posedge clkb or negedge rst_n) begin : proc_doutb_temp
+                if(~rst_n) begin
+                    doutb_temp[i] <= 0;
+                end else begin
+                    doutb_temp[i] <= doutb_wire[($unsigned(addrb_y_t)+i)%I_WIDTH];
+                end
+            end
+        end
+
+        for (i = 0; i < I_WIDTH; i++) begin
             for (j = 0; j < I_WIDTH; j++) begin
                 always_ff @(posedge clkb or negedge rst_n) begin : proc_doutb
                     if(~rst_n) begin
-                        doutb[j][i] <= 0;
+                        doutb[i][j] <= 0;
                     end else begin
-                        doutb[j][i] <= doutb_temp[($unsigned(addrb_x_t)+i)%I_WIDTH][($unsigned(addrb_y_t)+j)%I_WIDTH];
+                        doutb[i][j] <= doutb_temp[i][($unsigned(addrb_x_s)+j)%I_WIDTH];;
                     end
                 end
             end
@@ -94,8 +108,4 @@ module interleaved_ram #(
 
     endgenerate
 
-
-
 endmodule : interleaved_ram
-
-

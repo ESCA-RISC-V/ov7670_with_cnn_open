@@ -5,7 +5,15 @@
 // VERSION Date AUTHOR DESCRIPTION
 `include "global.v"
 
-module lenet(
+module lenet#(
+    parameter WDP = 8,
+    parameter RIGHT_SHIFT = 7,
+    parameter INPUT_NUM = 1,
+    parameter OUTPUT_NUM = 6,
+    
+    localparam WDP_BIAS = 2 * WDP - 8,
+    localparam WDP_after1 = WDP    
+    )(
 	input					clk,
 	input					rstn,
 	input					go,
