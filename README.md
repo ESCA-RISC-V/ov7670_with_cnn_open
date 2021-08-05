@@ -23,6 +23,8 @@
 - Xilinx Zedboard
 - VGA to VGA port with monitor
 
+다만 Ubuntu 환경에서는 bitstream을 만들 때마다 컴퓨터를 재부팅해야 하는 문제가 있어, window 환경에서 사용할 것을 강력히 추천합니다.
+
 코드가 크게 복잡하지 않기 때문에, 다른 환경에서도 잘 작동할 것이라고 생각합니다.
 
 ## 1. 프로젝트 생성하기
