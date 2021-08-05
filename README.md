@@ -93,6 +93,9 @@ Bitstream을 생성하기에 앞서, synthesis와 implementation이 되어 있�
 Vivado에서는 'generate bitstream'을 클릭하면, synthesis와 implementation을 먼저 하겠냐고 제안하므로,
 간단하게 generate bitstream 버튼만 눌러주시면 됩니다.
 
+ - Ubuntu 20.04 / Vivado 2018.3
+에러 메세지 없이 synthesis 과정에서 에러가 발생하는 경우가 있습니다. 이 경우에는 컴퓨터를 재부팅하고 프로젝트를 다시 여는 것이 도움이 될 수 있습니다.
+
 ## 2. 하드웨어 연결하기
 
 ### 1. OV7670 카메라와 Zedboard 연결하기
