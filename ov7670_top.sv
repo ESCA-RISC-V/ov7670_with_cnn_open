@@ -64,7 +64,6 @@ module ov7670_top	#(
 	logic			clk75;
 	logic			clk50;
 	logic 			clk25;
-	logic           clk200;
 	// capture to mem_blk_0
 	logic [18:0]	capture_addr;
 	logic [7:0] 	capture_data;
@@ -105,7 +104,6 @@ module ov7670_top	#(
 			.clk_75wiz(clk75),
 			.clk_50wiz(clk50),
 			.clk_25wiz(clk25),
-			.clk_200wiz(clk200),
 			.resetn(rst_n)
 			);                                                       
 
