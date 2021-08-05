@@ -3,7 +3,7 @@
 // AUTHOR'S EMAIL : lulinchen@aliyun.com 
 // Release history
 // VERSION Date AUTHOR DESCRIPTION
-`include "global.v"
+`include "global.sv"
 
 module lenet(
 	input					clk,

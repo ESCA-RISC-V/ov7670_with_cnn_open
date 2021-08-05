@@ -105,7 +105,7 @@ module ov7670_top	#(
 			.clk_75wiz(clk75),
 			.clk_50wiz(clk50),
 			.clk_25wiz(clk25),
-			//.clk_200wiz(clk200),
+			.clk_200wiz(clk200),
 			.resetn(rst_n)
 			);                                                       
 
