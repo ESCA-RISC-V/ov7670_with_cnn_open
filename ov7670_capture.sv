@@ -29,16 +29,27 @@ module ov7670_capture 	(
 						);
 	logic state;
     logic we_go;
+    logic [18:0] addr_t, addr_s;
     
+    
+    always_ff @(posedge pclk or negedge rst_n) begin : proc_addr
+        if (~rst_n) begin
+            addr <= 0;
+            addr_s <= 0;
+        end else begin
+            addr <= addr_s;
+            addr_s <= addr_t;
+        end
+    end
 
-	always_ff @(posedge pclk or negedge rst_n) begin : proc_addr
+	always_ff @(posedge pclk or negedge rst_n) begin : proc_addr_t
 		if(~rst_n) begin
-			addr <= '0;
+			addr_t <= '0;
 		end else begin
 			if (vsync == 1'b1) begin
-				addr <= '0;
+				addr_t <= '0;
 			end else if (state == 1'b1 && href == 1'b1) begin
-				addr <= addr + 1;
+				addr_t <= addr_t + 1;
 			end
 		end
 	end

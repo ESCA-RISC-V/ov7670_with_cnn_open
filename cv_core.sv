@@ -74,7 +74,7 @@ module core
         if(~rst_n) begin
             counter <= '0;
         end else begin
-            if (counter >= c_frame + 1) begin
+            if (counter >= c_frame) begin
                 counter <= '0;
             end else begin
                 counter <= counter + 1;
@@ -86,7 +86,7 @@ module core
         if(~rst_n) begin
             address_mem0 <= '0;
         end else begin
-            if (counter >= c_frame + 1) begin
+            if (counter >= c_frame) begin
                 address_mem0 <= '0;
             end else begin
                 address_mem0 <= address_mem0 + 1;
@@ -98,7 +98,7 @@ module core
         if(~rst_n) begin
             hcounter <= 0;
         end else begin
-            if (counter >= c_frame + 1) begin
+            if (counter >= c_frame) begin
                 hcounter <= 0;
             end else begin
                 if (hcounter == width - 1) begin
@@ -114,7 +114,7 @@ module core
         if(~rst_n) begin
             vcounter <= 0;
         end else begin
-            if (counter >= c_frame + 1) begin
+            if (counter >= c_frame) begin
                 vcounter <= 0;
             end else begin
                 if (hcounter == width - 1) begin
@@ -128,7 +128,7 @@ module core
         if(~rst_n) begin
             lenet_doing <= lenet_signal;
         end else begin
-            if (counter >= c_frame + 1) begin
+            if (counter >= c_frame) begin
                 lenet_doing <= lenet_signal;
             end
         end
@@ -138,21 +138,21 @@ module core
         if(~rst_n) begin
             address_mem1 <= 0;
         end else begin
-            if (counter >= c_frame + 1) begin
+            if (counter >= c_frame) begin
                 address_mem1 <= '0;
             end else begin
                 if (lenet_doing == 1'b1) begin
                     if (hcounter >= left && vcounter >= upper && hcounter < right && vcounter < downer) begin
                         if (vcounter - upper < heightlength) begin
-                            address_mem1 <= vcounter * width + hcounter + width * (lenet_size - 1) * heightlength;
+                            address_mem1 <= vcounter * width + hcounter + width * (lenet_size - 1) * heightlength - 1;
                         end else begin
-                            address_mem1 <= vcounter * width + hcounter - width * heightlength;
+                            address_mem1 <= vcounter * width + hcounter - width * heightlength - 1;
                         end
                     end else begin
-                        address_mem1 <= vcounter * width + hcounter;
+                        address_mem1 <= vcounter * width + hcounter - 1;
                     end
                 end else begin
-                    address_mem1 <= vcounter * width + hcounter;
+                    address_mem1 <= vcounter * width + hcounter - 1;
                 end
             end
         end
@@ -162,7 +162,7 @@ module core
         if(~rst_n) begin
             address_mem2 <= 0;
         end else begin
-            if (counter >= c_frame + 1) begin
+            if (counter >= c_frame) begin
                 address_mem2 <= 0;
             end else begin
                 if (lenet_doing == 1'b1) begin 
@@ -180,7 +180,7 @@ module core
         if(~rst_n) begin
             accu_temp <= '0;
         end else begin
-            if (counter < c_frame + 1) begin
+            if (counter < c_frame) begin
                 if (lenet_doing == 1'b1) begin
                     if ((hcounter - left) % widthlength == 0 && (vcounter - upper) % heightlength ==0) begin
                         accu_temp[(hcounter-left)/widthlength] <= din[7:4];                                                                         
@@ -196,7 +196,7 @@ module core
         if(~rst_n) begin
             out_temp <= '0;
         end else begin
-            if (counter < c_frame + 1) begin
+            if (counter < c_frame) begin
                 if (lenet_doing == 1'b1) begin 
                     if (hcounter >= left && vcounter >= upper && hcounter < right && vcounter < downer) begin
                         if ((hcounter - left) % widthlength == (widthlength - 1) && (vcounter - upper) % heightlength == (heightlength - 1)) begin       
@@ -216,7 +216,7 @@ module core
         if(~rst_n) begin
             lenet_dataout <= 0;
         end else begin
-            if (counter < c_frame + 1) begin
+            if (counter < c_frame) begin
                 if (lenet_doing == 1'b1) begin 
                     if (hcounter >= left && vcounter >= upper && hcounter < right && vcounter < downer) begin
                         if ((hcounter - left) % widthlength == (widthlength - 1) && (vcounter - upper) % heightlength == (heightlength - 1)) begin       
@@ -236,7 +236,7 @@ module core
         if(~rst_n) begin
             lenet_we <= '0;
         end else begin
-            if (counter >= c_frame + 1) begin
+            if (counter >= c_frame) begin
                 lenet_we <= '0;
             end else begin
                 if (lenet_doing == 1'b1) begin 
@@ -260,7 +260,7 @@ module core
         if(~rst_n) begin
             dout <= '0;
         end else begin
-            if (counter >= c_frame + 1) begin
+            if (counter >= c_frame) begin
                 dout <= '0;
             end else begin
                 if (lenet_doing == 1'b1) begin 
@@ -280,7 +280,7 @@ module core
         if(~rst_n) begin
             we <= 0;
         end else begin
-            if (counter >= c_frame + 1) begin
+            if (counter >= c_frame) begin
                 we <= '0;
             end else begin
                 if (counter == 1'b1) begin
@@ -294,7 +294,7 @@ module core
         if(~rst_n) begin
             data_ready <= 0;
         end else begin
-            if (counter >= c_frame + 1) begin
+            if (counter >= c_frame) begin
                 data_ready <= '0;
             end else begin
                 if (lenet_doing == 1'b1 && hcounter == right - 1 && vcounter == downer - 1) begin
