@@ -131,10 +131,6 @@ Vivado에서는 'generate bitstream'을 클릭하면, synthesis와 implementatio
 
 USB 2.0 포트가 있는 케이블을 통해 JTAG 포트를 이용해 연결하면 됩니다.
 
-![image](https://user-images.githubusercontent.com/80150832/125572573-4c04b248-3f7c-4bbf-aa48-6d16a75bb8bc.png)
-
-JP7-JP11이 위 사진과 같은지 확인하세요.
-
 ### 3. Connect Zedobard to Monitor
 
 이 프로젝트에서는 이미지 출력을 위해 VGA output을 사용합니다. Zedboard와 모니터를 Zedboard의 VGA 포트를 사용하여 연결해주십시오.
