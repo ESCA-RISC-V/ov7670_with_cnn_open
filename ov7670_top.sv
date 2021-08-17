@@ -30,9 +30,10 @@ module ov7670_top	#(
                     parameter widthlength = 8,                                            // lenet_input data pixel accumulation size
                     parameter heightlength = 8,
                     parameter lenet_size = 28,
-                    parameter threshold = 'b0110000000,
+                    parameter camera_d_size = 8,
+                    parameter threshold = 'b01100000000000,
                     
-                    localparam ACC_D_SIZE = $clog2(widthlength * heightlength) + 4 - 1           // each lenet pixel's data size
+                    localparam ACC_D_SIZE = $clog2(widthlength * heightlength) + camera_d_size           // each lenet pixel's data size
                     
                     )(
 					input 	     		    clk100_zed,

@@ -26,8 +26,8 @@ module core
 			parameter widthlength = 8,
 			parameter heightlength = 8,
 			parameter lenet_size = 28,
-			parameter ACC_D_SIZE = 9,
-			parameter threshold = 'b0110001111,
+			parameter ACC_D_SIZE = 14,
+			parameter threshold = 'b01100011110000,
             
             localparam THRESHOLD = threshold * widthlength * heightlength / (8 * 8) ,
 			
@@ -58,17 +58,17 @@ module core
 	logic[18:0]	address_mem0;
 	logic[18:0] address_mem1;
 	logic[9:0] address_mem2;
-    logic[lenet_size-1:0][ACC_D_SIZE:0] accu_temp;
-    logic[lenet_size-1:0][ACC_D_SIZE:0] out_temp;
+    logic[lenet_size-1:0][ACC_D_SIZE-1:0] accu_temp;
+    logic[lenet_size-1:0][ACC_D_SIZE-1:0] out_temp;
     logic[9:0]hcounter;
     logic[9:0]vcounter;
     logic lenet_doing;
-    logic [ACC_D_SIZE:0]lenet_dataout;
+    logic [ACC_D_SIZE-1:0]lenet_dataout;
 
     assign addr_mem0 = address_mem0;
     assign addr_mem1 = address_mem1;
     assign addr_mem2 = address_mem2;
-    assign lenet_dout = $unsigned(lenet_dataout * 16 / (widthlength * heightlength));
+    assign lenet_dout = $unsigned(lenet_dataout / (widthlength * heightlength));
 
     always_ff @(posedge clk25 or negedge rst_n) begin : proc_counter                                        // counter - count per pixel - used for checking one frame processing ends.
         if(~rst_n) begin
@@ -183,9 +183,9 @@ module core
             if (counter < c_frame) begin
                 if (lenet_doing == 1'b1) begin
                     if ((hcounter - left) % widthlength == 0 && (vcounter - upper) % heightlength ==0) begin
-                        accu_temp[(hcounter-left)/widthlength] <= din[7:4];                                                                         
+                        accu_temp[(hcounter-left)/widthlength] <= din;                                                                         
                     end else begin
-                        accu_temp[(hcounter-left)/widthlength] <= accu_temp[(hcounter-left)/widthlength] + din[7:4];
+                        accu_temp[(hcounter-left)/widthlength] <= accu_temp[(hcounter-left)/widthlength] + din;
                     end
                 end
             end
@@ -200,8 +200,8 @@ module core
                 if (lenet_doing == 1'b1) begin 
                     if (hcounter >= left && vcounter >= upper && hcounter < right && vcounter < downer) begin
                         if ((hcounter - left) % widthlength == (widthlength - 1) && (vcounter - upper) % heightlength == (heightlength - 1)) begin       
-                            if ((accu_temp[(hcounter-left)/widthlength] + din[7:4] + 2 ** (ACC_D_SIZE - 8)) < THRESHOLD) begin
-                                out_temp[(hcounter-left)/widthlength] <= accu_temp[(hcounter-left)/widthlength] + din[7:4] + widthlength * heightlength / 2;                // add widthlength * heightlength / 2, because I want to do round, not round down
+                            if ((accu_temp[(hcounter-left)/widthlength] + din + 2 ** (ACC_D_SIZE - 8)) < THRESHOLD) begin
+                                out_temp[(hcounter-left)/widthlength] <= accu_temp[(hcounter-left)/widthlength] + din + widthlength * heightlength / 2;                // add widthlength * heightlength / 2, because I want to do round, not round down
                             end else begin
                                 out_temp[(hcounter-left)/widthlength] <= '1;
                             end
@@ -220,8 +220,8 @@ module core
                 if (lenet_doing == 1'b1) begin 
                     if (hcounter >= left && vcounter >= upper && hcounter < right && vcounter < downer) begin
                         if ((hcounter - left) % widthlength == (widthlength - 1) && (vcounter - upper) % heightlength == (heightlength - 1)) begin       
-                            if ((accu_temp[(hcounter-left)/widthlength] + din[7:4] + 2 ** (ACC_D_SIZE - 8)) < THRESHOLD) begin
-                                lenet_dataout <= accu_temp[(hcounter-left)/widthlength] + din[7:4] + widthlength * heightlength / 32;                                       // add widthlength * heightlength / 32, because I want to do round, not round down
+                            if ((accu_temp[(hcounter-left)/widthlength] + din + 2 ** (ACC_D_SIZE - 8)) < THRESHOLD) begin
+                                lenet_dataout <= accu_temp[(hcounter-left)/widthlength] + din + widthlength * heightlength / 32;                                       // add widthlength * heightlength / 32, because I want to do round, not round down
                             end else begin
                                 lenet_dataout <= '1;
                             end
@@ -265,7 +265,7 @@ module core
             end else begin
                 if (lenet_doing == 1'b1) begin 
                     if (hcounter >= left && vcounter >= upper && hcounter < right && vcounter < downer) begin
-                        dout <= $unsigned(out_temp[(hcounter-left)/widthlength]) / (widthlength * heightlength);
+                        dout <= $unsigned(out_temp[(hcounter-left)/widthlength]) / ((widthlength * heightlength) * 16);
                     end else begin
                         dout <= din[7:4];
                     end
