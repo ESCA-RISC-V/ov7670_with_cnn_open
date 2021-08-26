@@ -195,7 +195,7 @@ module ov7670_top	#(
 			.vga_vsync(vga_vsync)
 			);
 
-		ov7670_controller controller(                                 // initialize ov7670 or reset ov7670, reset has some bug to be fixed in future
+		/*ov7670_controller controller(                                 // initialize ov7670 or reset ov7670, reset has some bug to be fixed in future
 			.clk(clk50),
 			.sioc(OV7670_SIOC),
 			.rst_n(rst_n),
@@ -204,7 +204,19 @@ module ov7670_top	#(
 			.pwdn(OV7670_PWDN),
 			.reset(OV7670_RESET),
 			.xclk(OV7670_XCLK)
-			);
+			);*/
+			
+		camera_configure configure(
+		  .clk(clk100),
+		  .clk_en(1'b1),
+		  .rst_n(rst_n),
+		  .sioc(OV7670_SIOC),
+          .siod(OV7670_SIOD),
+          .done(config_finished),
+          .pwdn(OV7670_PWDN),
+          .reset(OV7670_RESET),
+          .xclk(OV7670_XCLK)
+		  );
 			
 		blk_mem_gen_2 fb3(                                            // stores processed data, for now, stores datas for Lenet input
 			.clka(clk25),
