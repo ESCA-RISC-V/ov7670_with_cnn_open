@@ -83,7 +83,7 @@ Ip catalog에서 해당하는 ip를 찾아 아래의 설정을 참고하여 xili
 이 block memory는 ov7670_capture에서 보내 준 이미지를 저장하고 cv_core로 보내줍니다.
 
 	- Component Name : blk_mem_gen_0(이 이름은 프로젝트 내에서 첫 번째로 block memory를 생성할 경우 기본으로 지정되는 이름입니다.)
-	- Memory Type : Simple Dual Port RAM
+	- Memory Type 	 : Simple Dual Port RAM
 	- Port A Options : Port A Width - 8 / Port A Depth - 307200 / Enable Port Type - Always Enabled
 	- Port B Options : Port B Width - 8 / Port B Depth - 307200 / Enable Port Type - Always Enabled
 
@@ -101,9 +101,10 @@ Ip catalog에서 해당하는 ip를 찾아 아래의 설정을 참고하여 xili
 이 block memory는 cv_core에서 보내 준 lenet의 input으로 사용될 이미지를 저장하여 lenet으로 보내줍니다.
 
 	- Component Name : blk_mem_gen_2(이 이름은 프로젝트 내에서  번째로 block memory를 생성할 경우 기본으로 지정되는 이름입니다)
-	- Memory Type : Simple Dual Port RAM
+	- Memory Type 	 : Simple Dual Port RAM
 	- Port A Options : Port A Width - 8 / Port A Depth - 1024 / Enable Port Type - Always Enabled
 	- Port B Options : Port B Width - 8 / Port A Depth - 1024 / Enable Port Type - Use ENB Pin / Not use primitive output register
+	- Other Options  : use Fill Remaining Memory Locations / Remaining Memory Locations - 0
 
 ### 3. Bitstream 생성하기
 
