@@ -4,7 +4,7 @@
 이 프로젝트는 ov7670_to_vga 프로젝트에 Lenet inference와 기타 기능을 추가한 프로젝트입니다.
 
 zedboard에서 ov7670으로 촬영하여 vga 포트로 출력하는 것에 관심이 있으시면 아래 링크의 프로젝트를 참고해주시기 바랍니다.
-https://github.com/ESCA-RISC-V/ov7670_to_vga
+- https://github.com/ESCA-RISC-V/ov7670_to_vga
 
 ov7670_to_vga 프로젝트와 비교하여 추가된 내용은 다음과 같습니다.
 
