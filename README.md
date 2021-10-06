@@ -1,5 +1,20 @@
 # cnn open과 ov7670 연결하기
 
+## 시작하기에 앞서
+이 프로젝트는 ov7670_to_vga 프로젝트에 Lenet inference와 기타 기능을 추가한 프로젝트입니다.
+
+zedboard에서 ov7670으로 촬영하여 vga 포트로 출력하는 것에 관심이 있으시면 아래 링크의 프로젝트를 참고해주시기 바랍니다.
+https://github.com/ESCA-RISC-V/ov7670_to_vga
+
+ov7670_to_vga 프로젝트와 비교하여 추가된 내용은 다음과 같습니다.
+
+	- 아래 출처의 Lenet-5 Inference를 실행하는 모듈 추가
+	- Core에서 Lenet-5 Inference의 입력값으로 사용할 수 있게, 데이터를 전처리하는 로직 추가
+	- Lenet-5 Inference의 입력값으로 사용될 데이터를 저장할 block memory 추가
+	- Lenet-5 Inference 로직을 컨트롤 할 lenet control 모듈 추가
+	- Inference에 사용되는 데이터와 inference 결과가 표시되도록 VGA 및 Core 모듈 수정
+	- 기타 스위치 기능 추가
+
 ## 참조
 이 프로젝트에 사용된 Lenet inference 베릴로그 코드는 아래의 출처에서 가져왔습니다.
 - https://github.com/lulinchen/cnn_open
@@ -14,7 +29,7 @@
 ## 시작하기
 이 프로젝트는 아래의 환경을 기반으로 작성되었습니다.
 - Windows 10
-- Vivado Design Suite 2019.1
+- Vivado Design Suite 2020.1 / 2019.1 
 - Xilinx Zedboard
 - VGA to VGA 포트와 VGA 인풋이 있는 모니터
 
@@ -56,12 +71,13 @@ Ip catalog에서 해당하는 ip를 찾아 아래의 설정을 참고하여 xili
 이 clocking wizard는 zedboard clock을 받아, 다양한 frequency의 clock으로 바꾸어줍니다.
 
 	- Component Name : clk_wiz_0(이 이름은 프로젝트 내에서 첫 번째로 clock wizard를 생성할 경우 기본으로 지정되는 이름입니다.)
-	- Input Clock : name - clk_in_wiz / frequency - 100MHz
-	- Output Clock1 : name - clk_100wiz / frequency - 100MHz
-	- Output Clock2 : name - clk_75wiz / frequency - 75MHz
-	- Output Clock3 : name - clk_50wiz / frequency - 50MHz
-	- Output Clock4 : name - clk_25wiz / frequency - 25MHz
-
+	- Input Clock : name - clk_in_wiz 		/ frequency - 100MHz
+	- Output Clock1 : name - clk_100wiz 		/ frequency - 100MHz	/ Phase - 0
+	- Output Clock2 : name - clk_100wiz_50shift 	/ frequency - 100MHz  	/ Phase - 50
+	- Output Clock3 : name - clk_25wiz 		/ frequency - 25MHz	/ Phase - 0
+	- Output Clock4 : name - clk_25wiz_50shift 	/ frequency - 25MHz 	/ Phase - 50
+	- Reset Type at Output Clock - Active Low
+	
 2. 첫번째 block memeory generator 생성
 
 이 block memory는 ov7670_capture에서 보내 준 이미지를 저장하고 cv_core로 보내줍니다.
@@ -165,13 +181,13 @@ Bitstream이 올라가고 촬영 화면이 잘 나오는지 확인하세요.
 
 ### 1. 스위치와 버튼
 
-swtich 7 : on - 중앙의 해상도를 바꾸고, inference 실행
+switch 7 : on - 촬영 멈추기 				
 
-switch 6 : on - 촬영 멈추기 				
+swtich 6 : on - inference 실행 및 결과 출력
 
-switch 5 : on - 중앙 부분에 녹색 테두리 생성 	
+switch 5 : on - 중앙의 해상도를 바꾸어, inference에 입력으로 사용되는 값이 출력되게 함.	
 
-switch 4 : on - inference 결과 출력
+switch 4 : on - 중앙 부분에 녹색 테두리 생성 
 
 btnc : 하드웨어 리셋
 
