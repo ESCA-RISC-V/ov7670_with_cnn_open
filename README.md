@@ -73,9 +73,9 @@ Ip catalog에서 해당하는 ip를 찾아 아래의 설정을 참고하여 xili
 	- Component Name : clk_wiz_0(이 이름은 프로젝트 내에서 첫 번째로 clock wizard를 생성할 경우 기본으로 지정되는 이름입니다.)
 	- Input Clock : name - clk_in_wiz 		/ frequency - 100MHz
 	- Output Clock1 : name - clk_100wiz 		/ frequency - 100MHz	/ Phase - 0
-	- Output Clock2 : name - clk_100wiz_50shift 	/ frequency - 100MHz  	/ Phase - 50
+	- Output Clock2 : name - clk_100wiz_180shift 	/ frequency - 100MHz  	/ Phase - 180
 	- Output Clock3 : name - clk_25wiz 		/ frequency - 25MHz	/ Phase - 0
-	- Output Clock4 : name - clk_25wiz_50shift 	/ frequency - 25MHz 	/ Phase - 50
+	- Output Clock4 : name - clk_25wiz_180shift 	/ frequency - 25MHz 	/ Phase - 180
 	- Reset Type at Output Clock - Active Low
 	
 2. 첫번째 block memeory generator 생성
