@@ -9,7 +9,7 @@ https://github.com/ESCA-RISC-V/ov7670_to_vga
 ov7670_to_vga 프로젝트와 비교하여 추가된 내용은 다음과 같습니다.
 
 	- 아래 출처의 Lenet-5 Inference를 실행하는 모듈 추가
-	- Core에서 Lenet-5 Inference의 입력값으로 사용할 수 있게, 데이터를 전처리하는 로직 추가
+	- Lenet-5 Inference의 입력값으로 사용할 수 있게, Core 모듈에 데이터를 전처리하는 로직 추가
 	- Lenet-5 Inference의 입력값으로 사용될 데이터를 저장할 block memory 추가
 	- Lenet-5 Inference 로직을 컨트롤 할 lenet control 모듈 추가
 	- Inference에 사용되는 데이터와 inference 결과가 표시되도록 VGA 및 Core 모듈 수정
