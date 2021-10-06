@@ -27,30 +27,35 @@ module ov7670_capture 	(
 						output logic[7:0]	dout,
 						output logic 		we
 						);
-	logic state;
+						
+    typedef enum logic[1:0] {IDLE, REST, NY, Y} data_state;
+	data_state state;
     logic we_go;
-    logic [18:0] addr_t, addr_s;
+    logic [18:0] addr_t;
     
-    
-    always_ff @(posedge pclk or negedge rst_n) begin : proc_addr
-        if (~rst_n) begin
-            addr <= 0;
-            addr_s <= 0;
-        end else begin
-            addr <= addr_s;
-            addr_s <= addr_t;
-        end
-    end
-
 	always_ff @(posedge pclk or negedge rst_n) begin : proc_addr_t
 		if(~rst_n) begin
+			addr <= '0;
 			addr_t <= '0;
 		end else begin
-			if (vsync == 1'b1) begin
-				addr_t <= '0;
-			end else if (state == 1'b1 && href == 1'b1) begin
-				addr_t <= addr_t + 1;
-			end
+			case(state)
+		        IDLE: begin
+		        	addr_t <= '0;
+		        end
+		        REST: begin
+		        	
+		        end
+		        NY: begin	// former state == NY && href == 1 means present state == Y
+		            
+		        end
+		        Y: begin
+		            addr_t <= addr_t + 1;
+		        end
+		        default: begin
+		            
+		        end
+		    endcase
+		    addr <= addr_t;
 		end
 	end
 
@@ -58,9 +63,23 @@ module ov7670_capture 	(
 		if(~rst_n) begin
 			dout <= '0;
 		end else begin
-			if (~(vsync == 1'b1) && ~(state == 1'b1 && href == 1'b1)) begin
-				dout <= din;
-			end
+		    case(state)
+		        IDLE: begin
+		        	
+		        end
+		        REST: begin
+		        	
+		        end
+		        NY: begin	// former state == NY && href == 1 means present state == Y
+		            dout <= din;
+		        end
+		        Y: begin
+		            
+		        end
+		        default: begin
+		            
+		        end
+		    endcase			
 		end
 	end
 
@@ -68,25 +87,63 @@ module ov7670_capture 	(
 		if(~rst_n) begin
 			we <= '0;
 		end else begin
-			if (vsync == 1'b1 || (state == 1'b1 && href == 1'b1)) begin
-				we <= '0;
-			end else begin
-				we <= ~we_go;
-			end
+		    case(state)
+		        IDLE: begin
+		        	we <= 0;
+		        end
+		        REST: begin
+		        	we <= 0;
+		        end
+		        NY: begin	// former state == NY && href == 1 means present state == Y
+		            we <= ~we_go;
+		        end
+		        Y: begin
+		            we <= 0;
+		        end
+		        default: begin
+		            we <= 0;
+		        end
+		    endcase
 		end
 	end
 
 	always_ff @(posedge pclk or negedge rst_n) begin : proc_state
 		if(~rst_n) begin
-			state <= 1'b0;
+			state <= IDLE;
 		end else begin
-			if (vsync == 1'b1) begin
-				state <= 1'b0;
-			end else if (state == 1'b1 && href == 1'b1) begin
-				state <= 1'b0;
-			end else begin
-				state <= 1'b1;
-			end
+		    case(state)
+		        IDLE: begin
+                    if (vsync == 1'b0) begin
+                        state <= REST;
+                    end
+		        end
+		        REST: begin
+		            if (vsync == 1'b1) begin 
+		                state <= IDLE;
+		            end else if (href == 1'b1) begin
+		                state <= NY;
+		            end else begin
+		                state <= REST;
+		            end
+		        end
+		        NY: begin
+		            if (href == 1'b1) begin
+		                state <= Y;
+		            end else begin
+		                state <= REST;
+		            end
+		        end
+		        Y: begin
+		            if (href == 1'b1) begin
+		                state <= NY;
+		            end else begin
+		                state <= REST;
+		            end
+		        end
+		        default: begin
+		            state <= IDLE;
+		        end
+		    endcase
 		end
 	end
 
@@ -94,9 +151,23 @@ module ov7670_capture 	(
 		if(~rst_n) begin
 			we_go <= sw;
 		end else begin
-			if (vsync == 1'b1) begin
-				we_go <= sw;
-			end
+		    case(state)
+		        IDLE: begin
+		        	we_go <= sw;
+		        end
+		        REST: begin
+
+		        end
+		        NY: begin
+		            
+		        end
+		        Y: begin
+		            
+		        end
+		        default: begin
+		            
+		        end
+		    endcase
 		end
 	end
 

@@ -21,10 +21,11 @@
 //////////////////////////////////////////////////////////////////////////////////
 module vga	 
 			#(
-            parameter widthlength = 8,
-            parameter heightlength = 8,
-            parameter lenet_size = 28,
-            
+			parameter REC_WIDTH = 8,
+			parameter REC_HEIGHT = 8,
+			parameter CNN_INPUT_WIDTH = 28,
+			parameter CNN_INPUT_HEIGHT = 28,
+			
 			parameter hRez = 640,
 			parameter hStartSync = 640 + 16,
 			parameter hEndSync = 640 + 16 + 96,
@@ -38,28 +39,27 @@ module vga
 			parameter hsync_active = 1'b0,
 			parameter vsync_active = 1'b0,
 			
-            localparam left = hRez / 2 - widthlength * lenet_size / 2 - 1,
-            localparam right = hRez / 2 + widthlength * lenet_size / 2,
-            localparam upper = vRez / 2 - heightlength * lenet_size / 2 - 1,
-            localparam downer = vRez / 2 + heightlength * lenet_size / 2
+            localparam LEFT = hRez / 2 - REC_WIDTH * CNN_INPUT_WIDTH / 2 - 1,
+            localparam RIGHT = hRez / 2 + REC_WIDTH * CNN_INPUT_WIDTH / 2,
+            localparam UP = vRez / 2 - REC_HEIGHT * CNN_INPUT_HEIGHT / 2 - 1,
+            localparam DOWN = vRez / 2 + REC_HEIGHT * CNN_INPUT_HEIGHT / 2
 			)
 			(
 			input                clk25,
 			input        [3:0]   frame_pixel,
-			input        [3:0]   lenet_digit,
-			input                lenet_ready,
-			input                sw,
-			input                sw2,
 			input                rst_n,
 			output       [18:0]	 frame_addr,
 			output logic [3:0]	 vga_red,
 			output logic [3:0]	 vga_green,
 			output logic [3:0]	 vga_blue,
 			output logic 		 vga_hsync,
-			output logic		 vga_vsync
+			output logic		 vga_vsync,
+			// lenet input output
+			input        [3:0]   lenet_digit,
+			input                lenet_ready,
+			input                bound_doing,
+			input                lenet_doing
 			);
-
-
 
 	logic [9:0]	   hCounter;
 	logic [9:0]	   vCounter;
@@ -174,7 +174,7 @@ module vga
 			{vga_red, vga_green, vga_blue} <= '0;
 		end else begin
 			if (blank == 1'b0) begin
-				if (sw2 && (hCounter < 60 && vCounter < 100)) begin
+				if (lenet_doing && (hCounter < 60 && vCounter < 100)) begin
 					if (seven_seg[6] && hCounter >= 10 && hCounter < 50 && vCounter >= 10 && vCounter < 18) begin
                         {vga_red,vga_green,vga_blue} <= temp_rgb;
                     end else if(seven_seg[3] && hCounter >= 10 && hCounter < 50 && vCounter >= 82 && vCounter < 90) begin
@@ -193,12 +193,12 @@ module vga
                         {vga_red,vga_green,vga_blue} <= '0;
                     end
 				end else begin
-					if (sw) begin
-                        if ((hCounter == left || hCounter == right)&&(vCounter >= upper && vCounter <= downer)) begin
+					if (bound_doing) begin
+                        if ((hCounter == LEFT || hCounter == RIGHT)&&(vCounter >= UP && vCounter <= DOWN )) begin
                             vga_red <= 4'b0;
                             vga_green <= 4'b1111;
                             vga_blue <= 4'b0;	
-                        end else if ((hCounter >= left && hCounter <= right)&&(vCounter == upper || vCounter == downer)) begin
+                        end else if ((hCounter >= LEFT && hCounter <= RIGHT)&&(vCounter == UP || vCounter == DOWN)) begin
                             vga_red <= 4'b0;
                             vga_green <= 4'b1111;
                             vga_blue <= 4'b0;	

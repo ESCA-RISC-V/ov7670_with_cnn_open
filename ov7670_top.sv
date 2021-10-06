@@ -27,44 +27,44 @@
 module ov7670_top	#(
                     parameter screenwidth = 640,
                     parameter screenheight = 480,
-                    parameter widthlength = 8,                                            // lenet_input data pixel accumulation size
-                    parameter heightlength = 8,
-                    parameter lenet_size = 28,
-                    parameter camera_d_size = 8,
-                    parameter threshold = 'b01100000000000,
+                    parameter REC_WIDTH = 8,
+                    parameter REC_HEIGHT = 8,
+                    parameter CNN_INPUT_WIDTH = 28,
+                    parameter CNN_INPUT_HEIGHT = 28,
+                    parameter CNN_INPUT_PAD = 2,
+                    parameter CAM_D_SIZE = 8,
+                    parameter THRESHOLD = 'b01100000000000,
                     
-                    localparam ACC_D_SIZE = $clog2(widthlength * heightlength) + camera_d_size           // each lenet pixel's data size
-                    
+                    localparam ACC_D_SIZE = $clog2(REC_WIDTH * REC_HEIGHT) + CAM_D_SIZE
                     )(
 					input 	     		    clk100_zed,
-					output      			OV7670_SIOC,                           // similar with I2C's SCL
-					inout 	     			OV7670_SIOD,                           // similar with I2C's SDA
-					output      			OV7670_RESET,                          // ov7670 reset
-					output      			OV7670_PWDN,                           // ov7670 power down
-					input 	     			OV7670_VSYNC,                          // ov7670 vertical sync
-					input 	     			OV7670_HREF,                           // ov7670 horizontal reference
-					input 	     			OV7670_PCLK,                           // ov7670 pclock
-					output      			OV7670_XCLK,                           // ov7670 xclock
-					input 	       [7:0] 	OV7670_D,                              // ov7670 data
+					output      			OV7670_SIOC,  // similar with I2C's SCL
+					inout 	     			OV7670_SIOD,  // similar with I2C's SDA
+					output      			OV7670_RESET, // ov7670 reset
+					output      			OV7670_PWDN,  // ov7670 power down
+					input 	     			OV7670_VSYNC, // ov7670 vertical sync
+					input 	     			OV7670_HREF,  // ov7670 horizontal reference
+					input 	     			OV7670_PCLK,  // ov7670 pclock
+					output      			OV7670_XCLK,  // ov7670 xclock
+					input 	       [7:0] 	OV7670_D,     // ov7670 data
 		
-					output         [7:0]    LED,                                   // zedboard_LED
+					output         [7:0]    LED,          // zedboard_LED
 		
-					output         [3:0]	vga_red,                               // vga red output
-					output	       [3:0]	vga_green,                             // vga green output
-					output	       [3:0]	vga_blue,                              // vga blue output
-					output	                vga_hsync,                             // vga horizontal sync
-					output	                vga_vsync,                             // vga vertical sync
+					output         [3:0]	vga_red,      // vga red output
+					output	       [3:0]	vga_green,    // vga green output
+					output	       [3:0]	vga_blue,     // vga blue output
+					output	                vga_hsync,    // vga horizontal sync
+					output	                vga_vsync,    // vga vertical sync
 
-					input 	                btn,                                    // zedboard BTNU (up button)
 					input                   PAD_RESET,
-					input 	       [7:0]	SW                                    // zedboard SW (switch )
+					input 	       [7:0]	SW            // zedboard SW (switch )
 					);
         
 	// clocks
 	logic			clk100;
-	logic			clk75;
-	logic			clk50;
 	logic 			clk25;
+	logic			clk100_50shift;
+	logic			clk25_50shift;
 	// capture to mem_blk_0
 	logic [18:0]	capture_addr;
 	logic [7:0] 	capture_data;
@@ -80,39 +80,44 @@ module ov7670_top	#(
 	logic [3:0]		frame_pixel;
 	// controller to LED
 	logic 			config_finished;
-	// memory2 controller
-	logic [9:0]		addr_core_to_mem2;
-	logic [7:0]		data_core_to_mem2;
-	logic 			lenet_we;
-	// lenet memory access
-	logic [9:0]    addr_lenet_to_mem2;
-	logic [7:0]   data_lenet_from_mem2;
-	logic          ren_lenet_to_mem2;
-	// lenet control and output
-	logic          lenet_rstn;
-	logic          lenet_go;
-	logic          lenet_ready;
-	logic[3:0]     lenet_digit;
-	logic          data_ready;
+	logic [7:0]     read;
+	// core to mem_blk_2
+	logic [9:0]     addr_core_to_mem2;
+	logic [7:0]     data_core_to_mem2;
+	logic           we_core_to_mem2;
+	logic           lenet_data_ready;
+	// mem_blk_2 to lenet
+	logic [9:0]     addr_lenet_to_mem2;
+	logic [7:0]     data_lenet_from_mem2;
+	logic           ren_lenet_to_mem2;
+	// lenet_control to lenet
+	logic           lenet_go;
+	logic           lenet_logic_ready;
+	// lenet to vga
+	logic [3:0]     lenet_digit;
 	
     wire rst_n = ~PAD_RESET;
 
-    assign LED = {SW[7:4], 3'b000 , config_finished};             // show LED some informations
-    
-		clk_wiz_0 clkwiz(                                             // clock generator
+// show some informations with LED
+//  assign LED = {SW[7:1], config_finished};
+
+
+// clock generator
+		clk_wiz_0 clkwiz(
 			.clk_in_wiz(clk100_zed),
 			.clk_100wiz(clk100),
-			.clk_75wiz(clk75),
-			.clk_50wiz(clk50),
+			.clk_100wiz_50shift(clk100_50shift),
 			.clk_25wiz(clk25),
+			.clk_25wiz_50shift(clk25_50shift),
 			.resetn(rst_n)
-			);                                                       
-
-		ov7670_capture icapture(                                      // gets datas from ov7670 and stores them to fb1
+			);                                  
+			                     
+// gets datas from ov7670 and stores them to captured_data
+		ov7670_capture icapture(
 			.pclk(OV7670_PCLK),
 			.vsync(OV7670_VSYNC),
 			.href(OV7670_HREF),
-			.sw(SW[6]),
+			.sw(SW[7]),
 			.rst_n(rst_n),
 			.din(OV7670_D),
 			.addr(capture_addr),
@@ -120,55 +125,80 @@ module ov7670_top	#(
 			.we(capture_we[0])
 			);
 
-    	blk_mem_gen_0 fb1(                                             // stores captured data
+// stores captured data
+    	blk_mem_gen_0 captured_data(
 			.clka(OV7670_PCLK),
 			.wea(capture_we),
 			.addra(capture_addr),
 			.dina(capture_data),
 
-			.clkb(clk50),
+			.clkb(clk25_50shift), // you can replace clk25 with 50 phase shift with !clk25
 			.addrb(addr_core_to_mem0),
 			.doutb(data_to_core)
 			);
 
+// loads data from captured_data and processes it, 
+// stores processed data to processed_data_for_vga, 
+// you can modify this module to change vga output or anything else
 		core #(
 		    .width(screenwidth),
 		    .height(screenheight),
-		    .widthlength(widthlength),
-		    .heightlength(heightlength),
-		    .lenet_size(lenet_size),
+		    .REC_WIDTH(REC_WIDTH),
+		    .REC_HEIGHT(REC_HEIGHT),
+		    .CNN_INPUT_WIDTH(CNN_INPUT_WIDTH),
+		    .CNN_INPUT_HEIGHT(CNN_INPUT_HEIGHT),
+		    .CNN_INPUT_PAD(CNN_INPUT_PAD),
 		    .ACC_D_SIZE(ACC_D_SIZE),
-		    .threshold(threshold)
-		    )icore(                                                   // loads data from fb1 and processes it, stores processed data to fb2 and fb3, you can modify this module to change vga output or anything else
+		    .THRESHOLD(THRESHOLD)
+		    )icore(                                                   
 			.clk25(clk25),
 			.din(data_to_core),
-			.lenet_signal(SW[7]),
 			.rst_n(rst_n),
 			.addr_mem0(addr_core_to_mem0),
 			.addr_mem1(addr_core_to_mem1),
 			.dout(data_from_core),
 			.we(we_core_to_mem1[0]),
+			
+			// lenet inputs outputs
+			.lenet_doing_signal(SW[6]),
+			.lenet_showing_signal(SW[5]),
 			.addr_mem2(addr_core_to_mem2),
 			.lenet_dout(data_core_to_mem2),
-			.lenet_we(lenet_we),
-			.data_ready(data_ready)
+			.lenet_we(we_core_to_mem2),
+			.lenet_data_ready(lenet_data_ready)
 			);
 
-		blk_mem_gen_1 fb2(                                            // stores processed data, connected with vga module
+// stores processed data, connected with vga module
+		blk_mem_gen_1 processed_data_for_vga(                                            
 			.clka(clk25),
 			.wea(we_core_to_mem1),
 			.addra(addr_core_to_mem1),
 			.dina(data_from_core),
 
-			.clkb(clk50),
+			.clkb(clk25_50shift),
 			.addrb(frame_addr),
 			.doutb(frame_pixel)
 			);
 
+// stores processed data, connected with lenet module
+		blk_mem_gen_2 processed_data_for_lenet(                                            
+			.clka(clk25),
+			.wea(we_core_to_mem2),
+			.addra(addr_core_to_mem2),
+			.dina(~data_core_to_mem2),
+
+			.clkb(clk100_50shift),
+			.addrb(addr_lenet_to_mem2),
+			.doutb(data_lenet_from_mem2),
+			.enb(~ren_lenet_to_mem2)
+			);
+
+// loads data from fb and sends it to vga output
 		vga #(
-		     .widthlength(widthlength),
-		     .heightlength(heightlength),
-		     .lenet_size(lenet_size),
+		     .REC_WIDTH(REC_WIDTH),
+		     .REC_HEIGHT(REC_HEIGHT),
+		     .CNN_INPUT_WIDTH(CNN_INPUT_WIDTH),
+		     .CNN_INPUT_HEIGHT(CNN_INPUT_HEIGHT),
 		     .hRez(640),
 		     .hStartSync(640 + 16),
 		     .hEndSync(640 + 16 + 96),
@@ -179,55 +209,21 @@ module ov7670_top	#(
 		     .vMaxCount(480 + 10 + 2 + 33),
 		     .hsync_active(1'b0),
 		     .vsync_active(1'b0)
-		     )ivga(                                                     // loads data from fb and sends it to vga output
+		     )ivga(                                                     
 			.clk25(clk25),
-			.frame_pixel(frame_pixel),
-			.lenet_digit(lenet_digit),
-			.lenet_ready(lenet_ready),
-			.sw(SW[5]),
-			.sw2(SW[4]),
 			.rst_n(rst_n),
 			.frame_addr(frame_addr),
+			.frame_pixel(frame_pixel),
 			.vga_red(vga_red),
 			.vga_green(vga_green),
 			.vga_blue(vga_blue),
 			.vga_hsync(vga_hsync),
-			.vga_vsync(vga_vsync)
-			);
-
-		/*ov7670_controller controller(                                 // initialize ov7670 or reset ov7670, reset has some bug to be fixed in future
-			.clk(clk50),
-			.sioc(OV7670_SIOC),
-			.rst_n(rst_n),
-			.config_finished(config_finished),
-			.siod(OV7670_SIOD),
-			.pwdn(OV7670_PWDN),
-			.reset(OV7670_RESET),
-			.xclk(OV7670_XCLK)
-			);*/
-			
-		camera_configure configure(
-		  .clk(clk100),
-		  .clk_en(1'b1),
-		  .rst_n(rst_n),
-		  .sioc(OV7670_SIOC),
-          .siod(OV7670_SIOD),
-          .done(config_finished),
-          .pwdn(OV7670_PWDN),
-          .reset(OV7670_RESET),
-          .xclk(OV7670_XCLK)
-		  );
-			
-		blk_mem_gen_2 fb3(                                            // stores processed data, for now, stores datas for Lenet input
-			.clka(clk25),
-			.wea(lenet_we),
-			.addra(addr_core_to_mem2),
-			.dina(~data_core_to_mem2),
-
-			.clkb(clk100),
-			.addrb(addr_lenet_to_mem2),
-			.doutb(data_lenet_from_mem2),
-			.enb(~ren_lenet_to_mem2)
+			.vga_vsync(vga_vsync),
+			// lenet input output
+			.lenet_digit(lenet_digit),
+			.lenet_ready(lenet_logic_ready),
+			.bound_doing(SW[4]),
+			.lenet_doing(SW[6])
 			);
 			
 		lenet ilenet(
@@ -238,15 +234,32 @@ module ov7670_top	#(
 		    .aa_src(addr_lenet_to_mem2),
 		    .qa_src({8'b0, data_lenet_from_mem2}),
 		    .digit(lenet_digit),
-		    .ready(lenet_ready)
+		    .ready(lenet_logic_ready)
 		);
 		
 		lenet_control ilenet_control(
 		    .clk(clk100),
-		    .lenet_ready(lenet_ready),
-		    .data_ready(data_ready),
+		    .lenet_ready(lenet_logic_ready),
+		    .data_ready(lenet_data_ready),
 		    .lenet_go(lenet_go),
 		    .rst_n(rst_n)
 		);
+
+// SCCB comunication with OV7670
+        camera_configure #(
+          .CLK_FREQ(25000000)
+            )configure(
+		  .clk(clk25),
+		  .sclk(clk100),
+		  .clk_en(1'b1),
+		  .rst_n(rst_n),
+		  .sioc(OV7670_SIOC),
+          .siod(OV7670_SIOD),
+          .done(config_finished),
+          .pwdn(OV7670_PWDN),
+          .reset(OV7670_RESET),
+          .xclk(OV7670_XCLK),
+          .read(read)
+		  );
 
 endmodule // ov7670_top

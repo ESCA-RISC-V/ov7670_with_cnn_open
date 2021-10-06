@@ -27,34 +27,62 @@ module lenet_control (
 	output logic   lenet_go
 );
 
-logic[1:0] data_ready_t;
-logic[1:0] lenet_ready_t;
+typedef enum logic[1:0] {NOT_READY, READY, AFTER_READY} ready_state;
+
+ready_state data_ready_t, logic_ready_t;
+
 
 always_ff @(posedge clk or negedge rst_n) begin : proc_data_ready_t                 // preprocessed data is ready
    if(~rst_n) begin
-      data_ready_t <= 2'b00;
+      data_ready_t <= NOT_READY;
    end else begin
-      if (data_ready_t == 2'b00 && data_ready == 1'b1) begin
-         data_ready_t <= 2'b01;
-      end else if (data_ready_t == 2'b01 && lenet_ready_t == 2'b01) begin
-         data_ready_t <= 2'b10;
-      end else if (data_ready_t == 2'b10 && data_ready == 1'b0) begin
-         data_ready_t <= 2'b00;
-      end
+      case (data_ready_t)
+         NOT_READY : begin
+            if (data_ready) begin
+               data_ready_t <= READY;
+            end
+         end // NOT_READY 
+         READY : begin
+            if (logic_ready_t == READY) begin
+               data_ready_t <= AFTER_READY;
+            end
+         end // READY 
+         AFTER_READY : begin
+            if (!data_ready) begin
+               data_ready_t <= NOT_READY;
+            end
+         end // AFTER_READY 
+         default : begin
+            data_ready_t <= NOT_READY;
+         end // default 
+      endcase
    end
 end
 
-always_ff @(posedge clk or negedge rst_n) begin : proc_lenet_ready_t                // lenet ready
+always_ff @(posedge clk or negedge rst_n) begin : proc_logic_ready_t                // lenet ready
    if(~rst_n) begin
-      lenet_ready_t <= 2'b01;
+      logic_ready_t <= READY;
    end else begin
-      if (lenet_ready_t == 2'b00 && lenet_ready == 1'b1) begin
-         lenet_ready_t <= 2'b01;
-      end else if (lenet_ready_t == 2'b01 && data_ready_t == 2'b01) begin
-         lenet_ready_t <= 2'b10;
-      end else if (lenet_ready_t == 2'b10 && lenet_ready == 1'b0) begin
-         lenet_ready_t <= 2'b00;
-      end
+      case (logic_ready_t)
+         NOT_READY : begin
+            if (lenet_ready) begin
+               logic_ready_t <= READY;
+            end
+         end // NOT_READY 
+         READY : begin
+            if (data_ready_t == READY) begin
+               logic_ready_t <= AFTER_READY;
+            end
+         end // READY 
+         AFTER_READY : begin
+            if (!lenet_ready) begin
+               logic_ready_t <= NOT_READY;
+            end
+         end // AFTER_READY 
+         default : begin
+            logic_ready_t <= NOT_READY;
+         end // default 
+      endcase
    end
 end
 
@@ -62,7 +90,7 @@ always_ff @(posedge clk or negedge rst_n) begin : proc_lenet_go                 
    if(~rst_n) begin
       lenet_go <= 1'b0;
    end else begin
-      if (data_ready_t == 2'b01 && lenet_ready_t == 2'b01) begin
+      if (data_ready_t == READY && logic_ready_t == READY) begin
          lenet_go <= 1'b1;
       end else begin
          lenet_go <= 1'b0;

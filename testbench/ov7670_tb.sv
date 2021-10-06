@@ -52,7 +52,7 @@ module ov7670_tb(
     end
     
     initial begin
-        sw = 8'b10110000;
+        sw = 8'b01110000;
     end
     
     always_ff @(posedge !pclkgen or negedge rst_n) begin : proc_d
@@ -124,7 +124,6 @@ module ov7670_tb(
         .vga_blue(),
         .vga_hsync(),
         .vga_vsync(),
-        .btn(),
         .PAD_RESET(~rst_n),
         .SW(sw)
         );
