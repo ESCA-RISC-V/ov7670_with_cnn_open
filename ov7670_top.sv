@@ -63,8 +63,8 @@ module ov7670_top	#(
 	// clocks
 	logic			clk100;
 	logic 			clk25;
-	logic			clk100_50shift;
-	logic			clk25_50shift;
+	logic			clk100_180shift;
+	logic			clk25_180shift;
 	// capture to mem_blk_0
 	logic [18:0]	capture_addr;
 	logic [7:0] 	capture_data;
@@ -99,16 +99,16 @@ module ov7670_top	#(
     wire rst_n = ~PAD_RESET;
 
 // show some informations with LED
-//  assign LED = {SW[7:1], config_finished};
+  assign LED = {SW[7:1], config_finished};
 
 
 // clock generator
 		clk_wiz_0 clkwiz(
 			.clk_in_wiz(clk100_zed),
 			.clk_100wiz(clk100),
-			.clk_100wiz_50shift(clk100_50shift),
+			.clk_100wiz_180shift(clk100_180shift),
 			.clk_25wiz(clk25),
-			.clk_25wiz_50shift(clk25_50shift),
+			.clk_25wiz_180shift(clk25_180shift),
 			.resetn(rst_n)
 			);                                  
 			                     
