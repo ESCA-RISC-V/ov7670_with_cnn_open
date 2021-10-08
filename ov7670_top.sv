@@ -132,7 +132,7 @@ module ov7670_top	#(
 			.addra(capture_addr),
 			.dina(capture_data),
 
-			.clkb(clk25_50shift),
+			.clkb(clk25_180shift),
 			.addrb(addr_core_to_mem0),
 			.doutb(data_to_core)
 			);
@@ -175,7 +175,7 @@ module ov7670_top	#(
 			.addra(addr_core_to_mem1),
 			.dina(data_from_core),
 
-			.clkb(clk25_50shift),
+			.clkb(clk25_180shift),
 			.addrb(frame_addr),
 			.doutb(frame_pixel)
 			);
@@ -187,7 +187,7 @@ module ov7670_top	#(
 			.addra(addr_core_to_mem2),
 			.dina(~data_core_to_mem2),
 
-			.clkb(clk100_50shift),
+			.clkb(clk100_180shift),
 			.addrb(addr_lenet_to_mem2),
 			.doutb(data_lenet_from_mem2),
 			.enb(~ren_lenet_to_mem2)
@@ -225,7 +225,7 @@ module ov7670_top	#(
 			.bound_doing(SW[4]),
 			.lenet_doing(SW[6])
 			);
-			
+// lenet inference module			
 		lenet ilenet(
 		    .clk(clk100),
 		    .rstn(rst_n),
@@ -236,7 +236,8 @@ module ov7670_top	#(
 		    .digit(lenet_digit),
 		    .ready(lenet_logic_ready)
 		);
-		
+
+// controller of lenet
 		lenet_control ilenet_control(
 		    .clk(clk100),
 		    .lenet_ready(lenet_logic_ready),
