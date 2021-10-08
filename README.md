@@ -201,3 +201,9 @@ btnc : 하드웨어 리셋
 여기서 사용된 Lenet-5는 MNIST 데이터셋을 기반으로 학습되었으며, MNIST 데이터셋의 경우 배경이 검은색, 글자가 하얀색이기 때문에 이를 반전시키기 위해 Lenet 인풋이 저장되는 Block memory의 din 부분에 not logic이 존재합니다.
 
 카메라의 밝기가 자동으로 조정되어, 흰 종이 부분도 어둡게 나타나기 때문에 inference에 도움을 주기 위해 픽셀의 밝기가 일정 값보다 높으면 하얀색으로 표시하도록 하는 logic이 core에 존재합니다.
+
+## 8. Testbench
+Testvector는 아래의 이미지가 입력되도록 하였습니다. (초록색 사각형은 Lenet-5 inference의 input으로 사용되는 부분을 나타낸 것으로, testvector에는 포함되지 않습니다.
+
+![pixil-frame-0](https://user-images.githubusercontent.com/80150832/136503094-f61c3e7e-3b3f-4f7e-a98d-d6a488990353.png)
+
