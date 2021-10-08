@@ -206,7 +206,7 @@ btnc : 하드웨어 리셋
 
 Testvector는 아래의 이미지가 입력되도록 하였습니다. (640 x 480)
 
-(초록색 사각형은 Lenet-5 inference의 input으로 사용되는 영역을 나타낸 것으로, testvector에는 포함되지 않습니다.
+(초록색 사각형은 Lenet-5 inference의 input으로 사용되는 영역을 나타낸 것으로, testvector에는 포함되지 않습니다.)
 
 ![pixil-frame-0](https://user-images.githubusercontent.com/80150832/136503094-f61c3e7e-3b3f-4f7e-a98d-d6a488990353.png)
 
