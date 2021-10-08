@@ -204,7 +204,7 @@ btnc : 하드웨어 리셋
 
 ## 8. Testbench
 
-Testvector는 아래의 이미지가 입력되도록 하였습니다.
+Testvector는 아래의 이미지가 입력되도록 하였습니다. (640 x 480)
 
 (초록색 사각형은 Lenet-5 inference의 input으로 사용되는 영역을 나타낸 것으로, testvector에는 포함되지 않습니다.
 
