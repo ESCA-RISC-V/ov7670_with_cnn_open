@@ -22,7 +22,11 @@ module core #(
             parameter width = 640,
             parameter height = 480,
             
-            localparam c_frame = width * height + 1,
+            parameter hMaxCount = 640 + 16 + 96 + 48,
+			parameter vMaxCount = 480 + 10 + 2 + 33,
+
+            localparam c_frame = hMaxCount * vMaxCount - 1,
+            //localparam c_frame = width * height + 1,
             
             // for lenet parameter
             parameter REC_WIDTH = 8,
@@ -43,7 +47,7 @@ module core #(
             // lenet parameter end
             )
             (
-			input                         clk25,
+			input                         clk24,
 			input        [7:0]	          din,
 			input                         rst_n,
 			
@@ -58,14 +62,17 @@ module core #(
 			output logic [9:0]            addr_mem2,
 			output logic [7:0]            lenet_dout,
 			output logic                  lenet_we,
-			output logic                  lenet_data_ready
+			output logic                  lenet_data_ready,
 			// lenet input output end
+
+            output logic                  core_end
 			);
 	
 	logic[18:0]	counter;
 	logic[18:0]	address_mem0;
 	logic[18:0]	address_mem1;
     logic[9:0]  address_mem2;
+    logic       we_t;
     
     assign addr_mem0 = address_mem0;
     assign addr_mem1 = address_mem1;
@@ -74,135 +81,141 @@ module core #(
     logic [CNN_INPUT_WIDTH-1:0][ACC_D_SIZE-1:0] accum_temp;
     logic [CNN_INPUT_WIDTH-1:0][ACC_D_SIZE-1:0] out_temp;
     
-    logic [9:0] hcounter, vcounter;
+    logic [9:0] hor, ver;
     logic lenet_doing, lenet_showing;
     logic [ACC_D_SIZE-1:0] lenet_dout_temp;
     
     generate
         if (1 << $clog2(REC_WIDTH * REC_HEIGHT) == REC_WIDTH * REC_HEIGHT) begin
             assign lenet_dout = lenet_dout_temp >> $clog2(REC_WIDTH * REC_HEIGHT);
-        end else begin
+        end 
+        else begin
             assign lenet_dout = $unsigned(lenet_dout_temp / (REC_WIDTH * REC_HEIGHT)); 
         end  
     endgenerate
     
+    assign core_end = hor == hMaxCount - 1 && ver == vMaxCount - 1;
+    
 // counter - count per pixel - used for checking one frame processing ends.
-    always_ff @(posedge clk25 or negedge rst_n) begin : proc_counter                                        
+    always_ff @(posedge clk24 or negedge rst_n) begin : proc_counter                                        
         if(~rst_n) begin
             counter <= '0;
-        end else begin
+        end 
+        else begin
             if (counter == c_frame) begin
                 counter <= '0;
-            end else begin
+            end 
+            else begin
                 counter <= counter + 1;
             end
         end
     end
 
-// hcounter and vcounter
-    always_ff @(posedge clk25 or negedge rst_n) begin : proc_hcounter_vcounter
+// hor and ver
+    always_ff @(posedge clk24 or negedge rst_n) begin : proc_hor_ver
         if(~rst_n) begin
-            hcounter <= 0;
-            vcounter <= 0;
-        end else begin
+            hor <= 0;
+            ver <= 0;
+        end 
+        else begin
             if (counter == c_frame) begin
-                hcounter <= 0;
-                vcounter <= 0;
-            end else begin
-                if (hcounter == width - 1) begin
-                    hcounter <= 0;
-                    vcounter <= vcounter + 1;
-                end else begin
-                    hcounter <= hcounter + 1;
-                    vcounter <= vcounter;
+                hor <= 0;
+                ver <= 0;
+            end 
+            else begin
+                if (hor == hMaxCount - 1) begin
+                    hor <= 0;
+                    ver <= ver + 1;
+                end 
+                else begin
+                    hor <= hor + 1;
+                    ver <= ver;
                 end
             end
         end
     end
     
 // address_mem0 - address of pixel of input data
-    always_ff @(posedge clk25 or negedge rst_n) begin : proc_address_mem0                                   
-        if(~rst_n) begin
-            address_mem0 <= '0;
-        end else begin
-            if (counter == c_frame) begin
-                address_mem0 <= '0;
-            end else begin
-                address_mem0 <= address_mem0 + 1;
-            end
-        end
-    end
-
+    assign address_mem0 = hor + ver * width;
 // lenet_doing
-    always_ff @(posedge clk25 or negedge rst_n) begin : proc_lenet_doing
+    always_ff @(posedge clk24 or negedge rst_n) begin : proc_lenet_doing
         if(~rst_n) begin
             lenet_doing <= lenet_doing_signal;
-        end else begin
+        end 
+        else begin
             if (counter == c_frame) begin
                 lenet_doing <= lenet_doing_signal;
-            end else begin
+            end 
+            else begin
             
             end
         end
     end
 
 // lenet_doing
-    always_ff @(posedge clk25 or negedge rst_n) begin : proc_lenet_showing
+    always_ff @(posedge clk24 or negedge rst_n) begin : proc_lenet_showing
         if(~rst_n) begin
             lenet_showing <= lenet_showing_signal;
-        end else begin
+        end 
+        else begin
             if (counter == c_frame) begin
                 lenet_showing <= lenet_showing_signal;
-            end else begin
+            end 
+            else begin
             
             end
         end
     end
     
 // address_mem1
-    always_ff @(posedge clk25 or negedge rst_n) begin : proc_address_mem1                               
+    always_ff @(posedge clk24 or negedge rst_n) begin : proc_address_mem1                               
         if(~rst_n) begin
             address_mem1 <= '0;
-        end else begin
-            if (counter == c_frame) begin
-                address_mem1 <= '0;
-            end else begin
-                if (lenet_showing) begin
-                    if (hcounter >= LEFT && vcounter >= UP && hcounter < RIGHT && vcounter < DOWN) begin
-                        if (vcounter - UP < REC_HEIGHT) begin
-                            address_mem1 <= vcounter * width + hcounter + width * (CNN_INPUT_HEIGHT - 1) * REC_HEIGHT;
-                        end else begin
-                            address_mem1 <= vcounter * width + hcounter - width * REC_HEIGHT;
-                        end
-                    end else begin
-                        address_mem1 <= vcounter * width + hcounter;
+        end 
+        else begin
+            if (lenet_showing) begin
+                if (hor >= LEFT && ver >= UP && hor < RIGHT && ver < DOWN) begin
+                    if (ver - UP < REC_HEIGHT) begin
+                        address_mem1 <= address_mem0 + width * (CNN_INPUT_HEIGHT - 1) * REC_HEIGHT;
+                    end 
+                    else begin
+                        address_mem1 <= address_mem0 - width * REC_HEIGHT;
                     end
-                end else begin
-                    address_mem1 <= vcounter * width + hcounter;
+                end 
+                else begin
+                    address_mem1 <= address_mem0;
                 end
+            end 
+            else begin
+                address_mem1 <= address_mem0;
             end
         end
     end
     
 // address_mem2
-    always_ff @(posedge clk25 or negedge rst_n) begin : proc_address_mem2
+    always_ff @(posedge clk24 or negedge rst_n) begin : proc_address_mem2
         if(~rst_n) begin
             address_mem2 <= '0;
-        end else begin
+        end 
+        else begin
             if (counter == c_frame) begin
                 address_mem2 <= '0;
-            end else begin
+            end 
+            else begin
                 if (lenet_doing) begin
-                    if (hcounter >= LEFT && vcounter >= UP && hcounter < RIGHT && vcounter < DOWN) begin
-                        if ((hcounter - LEFT) % REC_WIDTH == REC_WIDTH - 1 && (vcounter - UP) % REC_HEIGHT == REC_HEIGHT - 1) begin
-                            address_mem2 <= CNN_INPUT_PAD + CNN_INPUT_PAD * CNN_REAL_WIDTH + ((hcounter - LEFT) / REC_WIDTH) + CNN_REAL_WIDTH * ((vcounter - UP) / REC_HEIGHT);
-                        end else begin
+                    if (hor >= LEFT && ver >= UP && hor < RIGHT && ver < DOWN) begin
+                        if ((hor - LEFT) % REC_WIDTH == REC_WIDTH - 1 && (ver - UP) % REC_HEIGHT == REC_HEIGHT - 1) begin
+                            address_mem2 <= CNN_INPUT_PAD + CNN_INPUT_PAD * CNN_REAL_WIDTH + ((hor - LEFT) / REC_WIDTH) + CNN_REAL_WIDTH * ((ver - UP) / REC_HEIGHT);
+                        end 
+                        else begin
                             
                         end
-                    end else begin
+                    end 
+                    else begin
                         
                     end
-                end else begin
+                end 
+                else begin
                     address_mem2 <= 0; 
                 end
             end
@@ -210,24 +223,29 @@ module core #(
     end
     
 // accum_temp
-    always_ff @(posedge clk25 or negedge rst_n) begin : proc_accum_temp
+    always_ff @(posedge clk24 or negedge rst_n) begin : proc_accum_temp
         if(~rst_n) begin
             accum_temp <= '0;
-        end else begin
+        end 
+        else begin
             if (counter == c_frame) begin
                 //accum_temp <= '0; // no need to 
-            end else begin
+            end 
+            else begin
                 if (lenet_doing | lenet_showing) begin
-                    if (hcounter >= LEFT && vcounter >= UP && hcounter < RIGHT && vcounter < DOWN) begin
-                        if ((hcounter - LEFT) % REC_WIDTH == 0 && (vcounter - UP) % REC_HEIGHT == 0) begin
-                            accum_temp[(hcounter - LEFT) / REC_WIDTH] <= din;
-                        end else begin
-                            accum_temp[(hcounter - LEFT) / REC_WIDTH] <= accum_temp[(hcounter - LEFT) / REC_WIDTH] + din; 
+                    if (hor >= LEFT && ver >= UP && hor < RIGHT && ver < DOWN) begin
+                        if ((hor - LEFT) % REC_WIDTH == 0 && (ver - UP) % REC_HEIGHT == 0) begin
+                            accum_temp[(hor - LEFT) / REC_WIDTH] <= din;
+                        end 
+                        else begin
+                            accum_temp[(hor - LEFT) / REC_WIDTH] <= accum_temp[(hor - LEFT) / REC_WIDTH] + din; 
                         end
-                    end else begin
+                    end 
+                    else begin
                         //accum_temp <= '0;
                     end
-                end else begin
+                end 
+                else begin
                     //accum_temp <= '0; 
                 end
             end
@@ -235,28 +253,34 @@ module core #(
     end
     
 // accum_temp
-    always_ff @(posedge clk25 or negedge rst_n) begin : proc_out_temp
+    always_ff @(posedge clk24 or negedge rst_n) begin : proc_out_temp
         if(~rst_n) begin
             out_temp <= '0;
-        end else begin
+        end 
+        else begin
             if (counter == c_frame) begin
             
-            end else begin
+            end 
+            else begin
                 if (lenet_showing) begin
-                    if (hcounter >= LEFT && vcounter >= UP && hcounter < RIGHT && vcounter < DOWN) begin
-                        if ((hcounter - LEFT) % REC_WIDTH == REC_WIDTH - 1 && (vcounter - UP) % REC_HEIGHT == REC_HEIGHT - 1) begin
-                            if (accum_temp[(hcounter - LEFT) / REC_WIDTH] + din + REC_WIDTH * REC_HEIGHT / 2 < CALC_THRESHOLD) begin
-                                out_temp[(hcounter - LEFT) / REC_WIDTH] <= accum_temp[(hcounter - LEFT) / REC_WIDTH] + din + REC_WIDTH * REC_HEIGHT / 2;
-                            end else begin
-                                out_temp[(hcounter - LEFT) / REC_WIDTH] <= $unsigned(8'b11111111 * REC_WIDTH * REC_HEIGHT);
+                    if (hor >= LEFT && ver >= UP && hor < RIGHT && ver < DOWN) begin
+                        if ((hor - LEFT) % REC_WIDTH == REC_WIDTH - 1 && (ver - UP) % REC_HEIGHT == REC_HEIGHT - 1) begin
+                            if (accum_temp[(hor - LEFT) / REC_WIDTH] + din + REC_WIDTH * REC_HEIGHT / 2 < CALC_THRESHOLD) begin
+                                out_temp[(hor - LEFT) / REC_WIDTH] <= accum_temp[(hor - LEFT) / REC_WIDTH] + din + REC_WIDTH * REC_HEIGHT / 2;
+                            end 
+                            else begin
+                                out_temp[(hor - LEFT) / REC_WIDTH] <= $unsigned(8'b11111111 * REC_WIDTH * REC_HEIGHT);
                             end
-                        end else begin
+                        end 
+                        else begin
                            
                         end
-                    end else begin
+                    end 
+                    else begin
                        
                     end
-                end else begin
+                end 
+                else begin
                   
                 end
             end
@@ -264,28 +288,34 @@ module core #(
     end    
     
 // accum_temp
-    always_ff @(posedge clk25 or negedge rst_n) begin : proc_lenet_dout_temp
+    always_ff @(posedge clk24 or negedge rst_n) begin : proc_lenet_dout_temp
         if(~rst_n) begin
             lenet_dout_temp <= '0;
-        end else begin
+        end 
+        else begin
             if (counter == c_frame) begin
             
-            end else begin
+            end 
+            else begin
                 if (lenet_doing) begin
-                    if (hcounter >= LEFT && vcounter >= UP && hcounter < RIGHT && vcounter < DOWN) begin
-                        if ((hcounter - LEFT) % REC_WIDTH == REC_WIDTH - 1 && (vcounter - UP) % REC_HEIGHT == REC_HEIGHT - 1) begin
-                            if (accum_temp[(hcounter - LEFT) / REC_WIDTH] + din + REC_WIDTH * REC_HEIGHT / 2 < CALC_THRESHOLD) begin
-                                lenet_dout_temp <= accum_temp[(hcounter - LEFT) / REC_WIDTH] + din + REC_WIDTH * REC_HEIGHT / 32;
-                            end else begin
+                    if (hor >= LEFT && ver >= UP && hor < RIGHT && ver < DOWN) begin
+                        if ((hor - LEFT) % REC_WIDTH == REC_WIDTH - 1 && (ver - UP) % REC_HEIGHT == REC_HEIGHT - 1) begin
+                            if (accum_temp[(hor - LEFT) / REC_WIDTH] + din + REC_WIDTH * REC_HEIGHT / 2 < CALC_THRESHOLD) begin
+                                lenet_dout_temp <= accum_temp[(hor - LEFT) / REC_WIDTH] + din + REC_WIDTH * REC_HEIGHT / 32;
+                            end 
+                            else begin
                                 lenet_dout_temp <= $unsigned(8'b11111111 * REC_WIDTH * REC_HEIGHT);
                             end
-                        end else begin
+                        end 
+                        else begin
                            
                         end
-                    end else begin
+                    end 
+                    else begin
                        
                     end
-                end else begin
+                end 
+                else begin
                   
                 end
             end
@@ -293,24 +323,29 @@ module core #(
     end    
     
 // accum_temp
-    always_ff @(posedge clk25 or negedge rst_n) begin : proc_lenet_we
+    always_ff @(posedge clk24 or negedge rst_n) begin : proc_lenet_we
         if(~rst_n) begin
             lenet_we <= '0;
-        end else begin
+        end 
+        else begin
             if (counter == c_frame) begin
                 lenet_we <= '0;
-            end else begin
+            end 
+            else begin
                 if (lenet_doing) begin
-                    if (hcounter >= LEFT && vcounter >= UP && hcounter < RIGHT && vcounter < DOWN) begin
-                        if ((hcounter - LEFT) % REC_WIDTH == REC_WIDTH - 1 && (vcounter - UP) % REC_HEIGHT == REC_HEIGHT - 1) begin
+                    if (hor >= LEFT && ver >= UP && hor < RIGHT && ver < DOWN) begin
+                        if ((hor - LEFT) % REC_WIDTH == REC_WIDTH - 1 && (ver - UP) % REC_HEIGHT == REC_HEIGHT - 1) begin
                             lenet_we <= 1'b1;
-                        end else begin
+                        end 
+                        else begin
                             lenet_we <= 1'b0;
                         end
-                    end else begin
+                    end 
+                    else begin
                         lenet_we <= 1'b0;
                     end
-                end else begin
+                end 
+                else begin
                     lenet_we <= 1'b0;
                 end
             end
@@ -318,20 +353,24 @@ module core #(
     end    
     
 // vga output pixel data
-    always_ff @(posedge clk25 or negedge rst_n) begin : proc_dout                                            
+    always_ff @(posedge clk24 or negedge rst_n) begin : proc_dout                                            
         if(~rst_n) begin
             dout <= '0;
-        end else begin
+        end 
+        else begin
             if (counter == c_frame) begin
                 dout <= '0;
-            end else begin
+            end 
+            else begin
                 if (lenet_showing) begin
-                    if (hcounter >= LEFT && vcounter >= UP && hcounter < RIGHT && vcounter < DOWN) begin
-                        dout <= $unsigned(out_temp[(hcounter - LEFT) / REC_WIDTH] / ((REC_WIDTH * REC_HEIGHT) * 16));
-                    end else begin
+                    if (hor >= LEFT && ver >= UP && hor < RIGHT && ver < DOWN) begin
+                        dout <= $unsigned(out_temp[(hor - LEFT) / REC_WIDTH] / ((REC_WIDTH * REC_HEIGHT) * 16));
+                    end 
+                    else begin
                         dout <= din[7:4];
                     end
-                end else begin
+                end 
+                else begin
                     dout <= din[7:4];
                 end
             end
@@ -339,31 +378,36 @@ module core #(
     end
 
 // write enable of vga output pixel
-    always_ff @(posedge clk25 or negedge rst_n) begin : proc_we                                             
+    always_ff @(posedge clk24 or negedge rst_n) begin : proc_we                                             
         if(~rst_n) begin
             we <= 0;
-        end else begin
-            if (counter == c_frame) begin
-                we <= '0;
-            end else begin
-                if (counter >= 1'b1) begin
-                    we <= 1'b1;
-                end
+            we_t <= 0;
+        end 
+        else begin
+            we <= we_t;
+            if (hor < width && ver < height) begin
+                we_t <= 1'b1;
+            end 
+            else begin
+                we_t <= 1'b0;
             end
         end
     end
 
 // write enable of vga output pixel
-    always_ff @(posedge clk25 or negedge rst_n) begin : proc_lenet_data_ready                                             
+    always_ff @(posedge clk24 or negedge rst_n) begin : proc_lenet_data_ready                                             
         if(~rst_n) begin
             lenet_data_ready <= 1'b0;
-        end else begin
+        end 
+        else begin
             if (counter == c_frame) begin
                 lenet_data_ready <= 1'b0;
-            end else begin
-                if (lenet_doing && hcounter == RIGHT - 1 && vcounter == DOWN - 1) begin
+            end 
+            else begin
+                if (lenet_doing && hor == RIGHT - 1 && ver == DOWN - 1) begin
                     lenet_data_ready <= 1'b1;
-                end else begin
+                end 
+                else begin
                     lenet_data_ready <= 1'b0;
                 end
             end

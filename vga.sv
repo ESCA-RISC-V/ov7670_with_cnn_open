@@ -45,7 +45,7 @@ module vga
             localparam DOWN = vRez / 2 + REC_HEIGHT * CNN_INPUT_HEIGHT / 2
 			)
 			(
-			input                clk25,
+			input                clk24,
 			input        [3:0]   frame_pixel,
 			input                rst_n,
 			output       [18:0]	 frame_addr,
@@ -74,7 +74,8 @@ module vga
     always_ff @(posedge lenet_ready or negedge rst_n) begin : proc_digit_t              // store lenet_digit;
         if (~rst_n) begin
             digit_t <= 4'b1111;
-        end else begin
+        end 
+        else begin
             if (lenet_ready) begin
                digit_t <= lenet_digit;
            end
@@ -113,39 +114,45 @@ module vga
         endcase
 	end
 
-	always_ff @(posedge clk25 or negedge rst_n) begin : proc_hCounter                  // horizontal counter of vga output
+	always_ff @(posedge clk24 or negedge rst_n) begin : proc_hCounter                  // horizontal counter of vga output
 		if(~rst_n) begin
 			hCounter <= '0;
-		end else begin
+		end 
+		else begin
 			if (hCounter == hMaxCount - 1) begin
 				hCounter <= 10'b0;
-			end else begin
+			end 
+			else begin
 				hCounter <= hCounter + 1;
 			end
 		end
 	end
 
-	always_ff @(posedge clk25 or negedge rst_n) begin : proc_vCounter                  // vertical counter of vga output
+	always_ff @(posedge clk24 or negedge rst_n) begin : proc_vCounter                  // vertical counter of vga output
 		if(~rst_n) begin
 			vCounter <= '0;
-		end else begin
+		end 
+		else begin
 			if (hCounter == hMaxCount - 1) begin
 				if (vCounter == vMaxCount - 1) begin
 					vCounter <= 10'b0;
-				end else begin
+				end 
+				else begin
 					vCounter <= vCounter + 1;
 				end
 			end
 		end
 	end
 
-	always_ff @(posedge clk25 or negedge rst_n) begin : proc_address                   // address of vga output pixel
+	always_ff @(posedge clk24 or negedge rst_n) begin : proc_address                   // address of vga output pixel
 		if(~rst_n) begin
 			address <= 0;
-		end else begin
+		end 
+		else begin
 			if (vCounter >= vRez) begin
 				address <= 19'b0;
-			end else begin
+			end 
+			else begin
 				if (hCounter < hRez) begin
 					address <= address + 1;
 				end
@@ -153,67 +160,83 @@ module vga
 		end
 	end
 
-	always_ff @(posedge clk25 or negedge rst_n) begin : proc_blank                     // whether send pixel value or not
+	always_ff @(posedge clk24 or negedge rst_n) begin : proc_blank                     // whether send pixel value or not
 		if(~rst_n) begin
 			blank <= 1'b1;
-		end else begin
+		end 
+		else begin
 			if (vCounter >= vRez) begin
 				blank <= 1'b1;
-			end else begin
+			end 
+			else begin
 				if (hCounter < hRez) begin
 					blank <= 1'b0;
-				end else begin
+				end 
+				else begin
 					blank <= 1'b1;
 				end
 			end
 		end
 	end
 
-	always_ff @(posedge clk25 or negedge rst_n) begin : proc_vga_rgb                   // vga_rgb value
+	always_ff @(posedge clk24 or negedge rst_n) begin : proc_vga_rgb                   // vga_rgb value
 		if(~rst_n) begin
 			{vga_red, vga_green, vga_blue} <= '0;
-		end else begin
+		end 
+		else begin
 			if (blank == 1'b0) begin
 				if (lenet_doing && (hCounter < 60 && vCounter < 100)) begin
 					if (seven_seg[6] && hCounter >= 10 && hCounter < 50 && vCounter >= 10 && vCounter < 18) begin
                         {vga_red,vga_green,vga_blue} <= temp_rgb;
-                    end else if(seven_seg[3] && hCounter >= 10 && hCounter < 50 && vCounter >= 82 && vCounter < 90) begin
+                    end 
+                    else if(seven_seg[3] && hCounter >= 10 && hCounter < 50 && vCounter >= 82 && vCounter < 90) begin
                         {vga_red,vga_green,vga_blue} <= temp_rgb;
-                    end else if(seven_seg[5] && hCounter >= 42 && hCounter < 50 && vCounter >= 10 && vCounter < 50) begin
+                    end 
+                    else if(seven_seg[5] && hCounter >= 42 && hCounter < 50 && vCounter >= 10 && vCounter < 50) begin
                         {vga_red,vga_green,vga_blue} <= temp_rgb;
-                    end else if(seven_seg[4] && hCounter >= 42 && hCounter < 50 && vCounter >= 50 && vCounter < 90) begin       
+                    end 
+                    else if(seven_seg[4] && hCounter >= 42 && hCounter < 50 && vCounter >= 50 && vCounter < 90) begin       
                         {vga_red,vga_green,vga_blue} <= temp_rgb;
-                    end else if(seven_seg[2] && hCounter >= 10 && hCounter < 18 && vCounter >= 50 && vCounter < 90) begin
+                    end 
+                    else if(seven_seg[2] && hCounter >= 10 && hCounter < 18 && vCounter >= 50 && vCounter < 90) begin
                         {vga_red,vga_green,vga_blue} <= temp_rgb;
-                    end else if(seven_seg[1] && hCounter >= 10 && hCounter < 18 && vCounter >= 10 && vCounter < 50) begin
+                    end 
+                    else if(seven_seg[1] && hCounter >= 10 && hCounter < 18 && vCounter >= 10 && vCounter < 50) begin
                         {vga_red,vga_green,vga_blue} <= temp_rgb;
-                    end else if(seven_seg[0] && hCounter >= 10 && hCounter < 50 && vCounter >= 46 && vCounter < 54) begin
+                    end 
+                    else if(seven_seg[0] && hCounter >= 10 && hCounter < 50 && vCounter >= 46 && vCounter < 54) begin
                         {vga_red,vga_green,vga_blue} <= temp_rgb;
-                    end else begin
+                    end 
+                    else begin
                         {vga_red,vga_green,vga_blue} <= '0;
                     end
-				end else begin
+				end 
+				else begin
 					if (bound_doing) begin
                         if ((hCounter == LEFT || hCounter == RIGHT)&&(vCounter >= UP && vCounter <= DOWN )) begin
                             vga_red <= 4'b0;
                             vga_green <= 4'b1111;
                             vga_blue <= 4'b0;	
-                        end else if ((hCounter >= LEFT && hCounter <= RIGHT)&&(vCounter == UP || vCounter == DOWN)) begin
+                        end 
+                        else if ((hCounter >= LEFT && hCounter <= RIGHT)&&(vCounter == UP || vCounter == DOWN)) begin
                             vga_red <= 4'b0;
                             vga_green <= 4'b1111;
                             vga_blue <= 4'b0;	
-                        end else begin
+                        end 
+                        else begin
                             vga_red <= frame_pixel;
                             vga_green <= frame_pixel;
                             vga_blue <= frame_pixel;
                         end
-                    end else begin
+                    end 
+                    else begin
                         vga_red <= frame_pixel;
                         vga_green <= frame_pixel;
                         vga_blue <= frame_pixel;
                     end
 				end
-			end else begin
+			end 
+			else begin
                 vga_red <= 4'b0;
                 vga_green <= 4'b0;
                 vga_blue <= 4'b0;
@@ -221,25 +244,29 @@ module vga
 		end
 	end
 
-	always_ff @(posedge clk25 or negedge rst_n) begin : proc_vga_hsync                 // vga horizontal sync
+	always_ff @(posedge clk24 or negedge rst_n) begin : proc_vga_hsync                 // vga horizontal sync
 		if(~rst_n) begin
 			vga_hsync <= ~hsync_active;
-		end else begin
+		end 
+		else begin
 			if (hCounter > hStartSync && hCounter <= hEndSync) begin
 				vga_hsync <= hsync_active;
-			end else begin
+			end 
+			else begin
 				vga_hsync <= ~hsync_active;
 			end
 		end
 	end
 
-	always_ff @(posedge clk25 or negedge rst_n) begin : proc_vga_vsync                 // vga vertical sync
+	always_ff @(posedge clk24 or negedge rst_n) begin : proc_vga_vsync                 // vga vertical sync
 		if(~rst_n) begin
 			vga_vsync <= ~vsync_active;
-		end else begin
+		end 
+		else begin
 			if (vCounter >= vStartSync && vCounter < vEndSync) begin
 				vga_vsync <= vsync_active;
-			end else begin
+			end 
+			else begin
 				vga_vsync <= ~vsync_active;
 			end
 		end
