@@ -136,7 +136,7 @@ module core #(
     end
     
 // address_mem0 - address of pixel of input data
-    assign address_mem0 = hor + ver * width;
+    assign address_mem0 = hor < 720 && ver < 480 ? hor + ver * width : 0;
 // lenet_doing
     always_ff @(posedge clk24 or negedge rst_n) begin : proc_lenet_doing
         if(~rst_n) begin
