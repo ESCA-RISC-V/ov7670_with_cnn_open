@@ -86,6 +86,7 @@ Ip catalog에서 해당하는 ip를 찾아 아래의 설정을 참고하여 xili
 	- Memory Type 	 : Simple Dual Port RAM
 	- Port A Options : Port A Width - 8 / Port A Depth - 307200 / Enable Port Type - Always Enabled
 	- Port B Options : Port B Width - 8 / Port B Depth - 307200 / Enable Port Type - Always Enabled / Not use primitive output register
+	- Read first!
 
 3. 두번째 block memeory generator 생성
 
@@ -95,7 +96,8 @@ Ip catalog에서 해당하는 ip를 찾아 아래의 설정을 참고하여 xili
 	- Memory Type : Simple Dual Port RAM
 	- Port A Options : Port A Width - 4 / Port A Depth - 307200 / Enable Port Type - Always Enabled
 	- Port B Options : Port B Width - 4 / Port B Depth - 307200 / Enable Port Type - Always Enabled / Not use primitive output register
-
+	- Read first!
+	
 4. 세번째 block memeory generator 생성
 
 이 block memory는 cv_core에서 보내 준 lenet의 input으로 사용될 이미지를 저장하여 lenet으로 보내줍니다.
@@ -105,7 +107,8 @@ Ip catalog에서 해당하는 ip를 찾아 아래의 설정을 참고하여 xili
 	- Port A Options : Port A Width - 8 / Port A Depth - 1024 / Enable Port Type - Always Enabled
 	- Port B Options : Port B Width - 8 / Port A Depth - 1024 / Enable Port Type - Use ENB Pin / Not use primitive output register
 	- Other Options  : use Fill Remaining Memory Locations / Remaining Memory Locations - 0
-
+	- Read first!
+	
 ### 3. Bitstream 생성하기
 
 Bitstream을 생성하기에 앞서, synthesis와 implementation이 되어 있어야 합니다.
