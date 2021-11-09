@@ -251,7 +251,7 @@ module ov7670_top	#(
 
 // SCCB comunication with OV7670
         camera_configure #(
-          .CLK_FREQ(25000000)
+		.CLK_FREQ(24000000)
             )configure(
 		  .clk(clk24),
 		  .sclk(clk48),
