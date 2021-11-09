@@ -69,7 +69,7 @@ module vga
 	logic [11:0]   temp_rgb;
 	logic [6:0]    seven_seg;
 	
-	assign frame_addr = hCounter < hRez && address < 640 * 480 ? address : 0;
+	assign frame_addr = hCounter < hRez && address < 640 * 480 ? address : 1;
 
     always_ff @(posedge lenet_ready or negedge rst_n) begin : proc_digit_t              // store lenet_digit;
         if (~rst_n) begin
