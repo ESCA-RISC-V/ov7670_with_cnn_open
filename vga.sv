@@ -68,13 +68,9 @@ module vga
 	logic [3:0]    digit_t;
 	logic [11:0]   temp_rgb;
 	logic [6:0]    seven_seg;
-	
-<<<<<<< Updated upstream
+
 	assign frame_addr = hCounter < hRez && address < 640 * 480 ? address : 1;           // default address is 1, not 0. 
                                                                                         // because if it is 0, it will be overlapped with memory write address of processed_data_for_vga 
-=======
-	assign frame_addr = hCounter < hRez ? address : 1;
->>>>>>> Stashed changes
 
     always_ff @(posedge lenet_ready or negedge rst_n) begin : proc_digit_t              // store lenet_digit;
         if (~rst_n) begin
