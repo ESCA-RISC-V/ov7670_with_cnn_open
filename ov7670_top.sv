@@ -99,9 +99,22 @@ module ov7670_top	#(
 	logic capture_end, core_end;
 
     wire rst_n = ~PAD_RESET;
+    
+    logic lenet_go_t;
+    
+    always_ff @(posedge clk24 or negedge rst_n) begin : proc_lenet_go_t                                        
+        if(~rst_n) begin
+            lenet_go_t <= '0;
+        end 
+        else begin
+            if (lenet_go) begin
+                lenet_go_t <= 1;
+            end
+        end
+    end
 
 // show some informations with LED
-  assign LED = {SW[7:1], config_finished};
+  assign LED = {SW[7:2], lenet_go_t, config_finished};
 
 
 // clock generator
@@ -230,7 +243,7 @@ module ov7670_top	#(
 			);
 // lenet inference module			
 		lenet ilenet(
-		    .clk(clk48),
+		    .clk(clk24),
 		    .rstn(rst_n),
 		    .go(lenet_go),
 		    .cena_src(ren_lenet_to_mem2),
@@ -242,7 +255,7 @@ module ov7670_top	#(
 
 // controller of lenet
 		lenet_control ilenet_control(
-		    .clk(clk48),
+		    .clk(clk24),
 		    .lenet_ready(lenet_logic_ready),
 		    .data_ready(lenet_data_ready),
 		    .lenet_go(lenet_go),
