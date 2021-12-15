@@ -99,22 +99,9 @@ module ov7670_top	#(
 	logic capture_end, core_end;
 
     wire rst_n = ~PAD_RESET;
-    
-    logic lenet_go_t;
-    
-    always_ff @(posedge clk24 or negedge rst_n) begin : proc_lenet_go_t                                        
-        if(~rst_n) begin
-            lenet_go_t <= '0;
-        end 
-        else begin
-            if (lenet_go) begin
-                lenet_go_t <= 1;
-            end
-        end
-    end
 
 // show some informations with LED
-  assign LED = {SW[7:2], lenet_go_t, config_finished};
+	assign LED = {SW[7:1], config_finished};
 
 
 // clock generator
