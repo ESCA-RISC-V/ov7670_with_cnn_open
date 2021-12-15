@@ -39,8 +39,8 @@ module vga
 			parameter hsync_active = 1'b0,
 			parameter vsync_active = 1'b0,
 			
-            localparam LEFT = hRez / 2 - REC_WIDTH * CNN_INPUT_WIDTH / 2,
-            localparam RIGHT = hRez / 2 + REC_WIDTH * CNN_INPUT_WIDTH / 2 + 1,
+            localparam LEFT = hRez / 2 - REC_WIDTH * CNN_INPUT_WIDTH / 2 - 1,
+            localparam RIGHT = hRez / 2 + REC_WIDTH * CNN_INPUT_WIDTH / 2,
             localparam UP = vRez / 2 - REC_HEIGHT * CNN_INPUT_HEIGHT / 2 - 1,
             localparam DOWN = vRez / 2 + REC_HEIGHT * CNN_INPUT_HEIGHT / 2
 			)
@@ -69,7 +69,7 @@ module vga
 	logic [11:0]   temp_rgb;
 	logic [6:0]    seven_seg;
 
-	assign frame_addr = hCounter < hRez && address < 640 * 480 ? address : 1;           // default address is 1, not 0. 
+	assign frame_addr = address;           // default address is 1, not 0. 
                                                                                         // because if it is 0, it will be overlapped with memory write address of processed_data_for_vga 
 
     always_ff @(posedge lenet_ready or negedge rst_n) begin : proc_digit_t              // store lenet_digit;
