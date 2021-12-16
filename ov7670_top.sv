@@ -190,7 +190,7 @@ module ov7670_top	#(
 			.addra(addr_core_to_mem2),
 			.dina(~data_core_to_mem2),
 
-			.clkb(clk48_180shift),
+			.clkb(clk24_180shift),
 			.addrb(addr_lenet_to_mem2),
 			.doutb(data_lenet_from_mem2),
 			.enb(~ren_lenet_to_mem2)
